@@ -20,11 +20,13 @@ class User(db.Model):
     avatar_id = db.Column(db.Integer,
                           db.ForeignKey("resources.id"),
                           nullable=False)
-    resource = db.relationship
+    resource = db.relationship()
 
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    content = db.Column(db.String, unique=False, nullable=False)
 
 
 class Chat(db.Model):
@@ -50,6 +52,22 @@ class Avatars(db.Model):
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.Integer, db.ForeignKey("user.id"),
+                       nullable=False)
+    receiver = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    relationship = db.relationship("User", backref=db.backref("Messages"),
+                                   lazy=True)
+    text = db.Column(db.String(1000), unique=False, nullable=False)
+
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    post = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+    post_relation = db.relationship("Post", backref=db.backref("Likes"),
+                                    lazy=True)
+    author = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_relation = db.relationship("User", backref=db.backref("Users"),
+                                    lazy=True)
 
 
 if __name__ == '__main__':
