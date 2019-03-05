@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired
 from flask import Flask, redirect, request, render_template, session
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
@@ -29,6 +30,7 @@ class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Integer, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
+    time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class Group(db.Model):
@@ -55,6 +57,7 @@ class Message(db.Model):
     sender = db.Column(db.Integer, nullable=False)
     chat = db.Column(db.Integer, nullable=False)
     text = db.Column(db.String(1000), nullable=False)
+    time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class Like(db.Model):
@@ -77,6 +80,7 @@ class ChatMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, nullable=False)
     chat = db.Column(db.Integer, nullable=False)
+    invite_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class FriendRequest(db.Model):
@@ -105,6 +109,12 @@ class UserModel:
             print(error)
             db.session.rollback()
 
+    def get(self, id):
+        user = User.query.filter(User.id == id).first()
+        if not user:
+            return
+        return user
+
     def get_all(self):
         """список пользователей"""
         return User.query.all()
@@ -119,6 +129,7 @@ class UserModel:
             db.session.rollback()
 
     def exists(self, username, password):
+        """проверка на существование пользователя"""
         user = User.query.filter(User.username == username).first()
         if not user:
             return "Not found"
@@ -246,6 +257,29 @@ class ChatMemberModel:
             print(error)
             db.session.rollback()
 
+    def get(self, user, chat):
+        """получение участника группы по пользователю и группе"""
+        member = ChatMember.query.filter(ChatMember.user == user and
+                                         ChatMember.chat == chat).first()
+        if not member:
+            return "Not found"
+        return member
+
+    def update_invite(self, id):
+        """обновление времени посещения беседы"""
+        member = ChatMember.query.filter(ChatMember.id == id).first()
+        member.invite_time = datetime.now()
+        db.session.commit()
+
+    def delete(self, id):
+        """удаление участника группы"""
+        try:
+            ChatMember.query.filter(ChatMember.id == id).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
+
 
 class ChatModel:
     """обработка чатов"""
@@ -261,6 +295,133 @@ class ChatModel:
             member = ChatMember(user=user, chat=chat.id)
             db.session.add(member)
         db.session.commit()
+
+    def get(self, id):
+        """получение чата по id"""
+        chat = Chat.query.filter(Chat.id == id).first()
+        if not chat:
+            return None
+        return chat
+
+    def get_for(self, user):
+        """получение чатов пользователя"""
+        chats = ChatMember.query.filter(ChatMember.user == user).all()
+        return chats
+
+    def get_of(self, chat):
+        """получение участников группы"""
+        users = ChatMember.query.filter(ChatMember.chat == chat).all()
+        return users
+
+class MessageModel:
+
+    def create(self, user, chat, text):
+        """отправка сообщения"""
+        message = Message(user=user, chat=chat, text=text)
+        db.session.add(message)
+        db.session.commit()
+
+    def get(self, id):
+        """получение сообщения по id"""
+        message = Message.query.filter(Message.id == id).first()
+        if not message:
+            return None
+        return message
+
+    def get_for(self, chat):
+        """список сообщений группы"""
+        messages = Message.query.filter(Message.chat == chat).all()
+        return messages
+
+    def delete(self, id):
+        """удаление сообщения"""
+        try:
+            Message.query.filter(Message.id == id).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
+
+    def edit(self, id, new_text):
+        """редактирование сообщения"""
+        message = MessageModel.get(id)
+        if not message:
+            return
+        message.text = new_text
+        db.session.commit()
+
+    def new_messages(self, user, chat):
+        """список непрочитанных сообщений"""
+        user = UserModel.get(user)
+        messages = Message.query.filter(Message.chat == chat and
+                                        Message.time > user.time).all()
+        return messages
+
+class PostModel:
+
+    def create(self, author, content):
+        """создание новости"""
+        post = Post(author=author, content=content)
+        db.session.add(post)
+        db.session.commit()
+
+    def get(self, id):
+        """получение новости по id"""
+        post = Post.query.filter(Post.id == id).first()
+        if not post:
+            return
+        return post
+
+    def edit(self, id, new_content):
+        """редактирование новости"""
+        post = PostModel.get(id)
+        if not post:
+            return "Not found"
+        post.content = new_content
+        db.session.commit()
+
+    def get_of(self, author):
+        """список новостей, выложенных пользователем"""
+        posts = Post.query.filter(Post.author == author).all()
+        return posts
+
+class LikeModel:
+
+    def create(self, author, post):
+        """создание оценки"""
+        like = Like(author=author, post=post)
+        db.session.add(like)
+        db.session.commit()
+
+    def get(self, id):
+        """получение оценки по id"""
+        like = Like.query.filter(Like.id == id).first()
+        if not like:
+            return
+        return like
+
+    def get_by(self, author, post):
+        """получение оценки по автору и новости"""
+        like = Like.query.filter(Like.author == author and
+                                 Like.post == post).first()
+        if not like:
+            return
+        return like
+
+    def get_for(self, post):
+        """список оценок к новости"""
+        likes = Like.query.filter(Like.post == post).all()
+        return likes
+
+    def delete(self, author, post):
+        """удаление оценки по автору и новости"""
+        try:
+            like = Like.query.filter(Like.author == author and
+                                     Like.post == post).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
 
 
 if __name__ == '__main__':
