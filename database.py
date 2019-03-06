@@ -13,20 +13,25 @@ app.config['SECRET_KEY'] = 'penza_street_networks'
 
 
 class User(db.Model):
+    """пользователи"""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
+    avatar = db.Column(db.Integer, nullable=False)
 
 
 class Post(db.Model):
+    """новости"""
     id = db.Column(db.Integer, primary_key=True)
+    author_type = db.Column(db.Integer, nullable=False)
     author = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String, nullable=False)
 
 
 class Chat(db.Model):
+    """беседы"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Integer, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
@@ -34,11 +39,13 @@ class Chat(db.Model):
 
 
 class Group(db.Model):
+    """группы"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
 
 
 class Resource(db.Model):
+    """ресурсы"""
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.String(120), unique=True, nullable=False)
     author = db.Column(db.Integer, nullable=False)
@@ -53,6 +60,7 @@ class Resource(db.Model):
 
 
 class Message(db.Model):
+    """сообщения"""
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.Integer, nullable=False)
     chat = db.Column(db.Integer, nullable=False)
@@ -61,22 +69,14 @@ class Message(db.Model):
 
 
 class Like(db.Model):
+    """оценки"""
     id = db.Column(db.Integer, primary_key=True)
     post = db.Column(db.Integer, nullable=False)
     author = db.Column(db.Integer, nullable=False)
 
 
-"""class Friend(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    target = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    friend = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    target_relation = db.relationship("User", backref=db.backref("Targets"),
-                                      lazy=True)
-    friend_relation = db.relationship("User", backref=db.backref("Friends"),
-                                      lazy=True)"""
-
-
 class ChatMember(db.Model):
+    """участинки бесед"""
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, nullable=False)
     chat = db.Column(db.Integer, nullable=False)
@@ -84,24 +84,28 @@ class ChatMember(db.Model):
 
 
 class FriendRequest(db.Model):
+    """запросы в друзья"""
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.Integer, nullable=False)
     receiver = db.Column(db.Integer, nullable=False)
 
 
 class Friend(db.Model):
+    """друзья"""
     id = db.Column(db.Integer, primary_key=True)
     base_user = db.Column(db.Integer, nullable=False)
     friend = db.Column(db.Integer, nullable=False)
 
 
 class GroupMember(db.Model):
+    """участники группы"""
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, nullable=False)
     group = db.Column(db.Integer, nullable=False)
 
 
 class PostLink(db.Model):
+    """ссылки на новости"""
     id = db.Column(db.Integer, primary_key=True)
     post = db.Column(db.Integer, nullable=False)
     place = db.Column(db.String(20), nullable=False)
@@ -109,6 +113,7 @@ class PostLink(db.Model):
 
 
 class ResourceLink(db.Model):
+    """ссылки на ресурсы"""
     id = db.Column(db.Integer, primary_key=True)
     resource = db.Column(db.Integer, nullable=False)
     place = db.Column(db.String(20), nullable=False)
@@ -158,21 +163,12 @@ class UserModel:
             return "Wrong password"
         return user
 
-    def create_post(self, user, content):
-        """публикация новости у пользователя на странице"""
-        post = PostModel.create(author=user, content=content)
-        PostLinkModel.create(post=post.id, place="user", place_id=user)
-
-    def repost(self, id, user):
-        """создание ссылки на новость на странице пользователя"""
-        PostLinkModel.create(post=id, place="user", place_id=user)
-
-    def get_news(self, user):
-        """список новостей пользователя"""
-        post_links = PostLink.query.filter(PostLink.place == "user" and
-                                           PostLink.place_id == user).all()
-        posts = [post.post for post in post_links]
-        return posts
+    def set_avatar(self, user, resource):
+        """изменение портрета пользователя"""
+        user = UserModel.get(user)
+        resource = ResourceModel.get(resource)
+        if resource.category == "image":
+            user.avatar = resource
 
 
 class FriendRequestModel:
@@ -406,27 +402,28 @@ class PostLinkModel:
         return link
 
     def create_post(self, place, place_id, content):
-        """публикация новости в нужном месте"""
-        post = PostModel.create(author=user, content=content)
-        PostLinkModel.create(post=post.id, place="user", place_id=user)
+        """публикация новости"""
+        post = PostModel.create(author_type=place, author=place_id,
+                                content=content)
+        PostLinkModel.create(post=post.id, place="user", place_id=place_id)
 
-    def repost(self, id, user):
-        """создание ссылки на новость в нужном объекте"""
-        PostLinkModel.create(post=id, place="user", place_id=user)
+    def repost(self, id, place, place_id):
+        """создание ссылки на новость"""
+        PostLinkModel.create(post=id, place=place, place_id=place_id)
 
-    def get_news(self, user):
-        """список новостей в нужном объекте"""
-        post_links = PostLink.query.filter(PostLink.place == "user" and
-                                           PostLink.place_id == user).all()
+    def get_news(self, place, place_id):
+        """список новостей"""
+        post_links = PostLink.query.filter(PostLink.place == place and
+                                           PostLink.place_id == place_id).all()
         posts = [post.post for post in post_links]
         return posts
 
 
 class PostModel:
 
-    def create(self, author, content):
+    def create(self, author_type, author, content):
         """создание новости"""
-        post = Post(author=author, content=content)
+        post = Post(author_type=author_type, author=author, content=content)
         db.session.add(post)
         db.session.commit()
         return post
@@ -549,23 +546,62 @@ class GroupModel:
         members = GroupMember.query.filter(GroupMember.group == group).all()
         return members
 
-    def create_post(self, group, content):
-        """публикация новости в группе на странице"""
-        post = PostModel.create(author=group, content=content)
-        PostLinkModel.create(post=post.id, place="group", place_id=group)
 
-    def repost(self, id, group):
-        """создание ссылки на новость на странице группы"""
-        PostLinkModel.create(post=id, place="group", place_id=group)
+class ResourceModel:
 
-    def get_news(self, group):
-        """список новостей группы"""
-        post_links = PostLink.query.filter(PostLink.place == "group" and
-                                           PostLink.place_id == group).all()
-        posts = [post.post for post in post_links]
-        return posts
+    def choose_category(self, resolution):
+        """выбрать категорию ресурса по его разрешению"""
+        categories = {"image": ["png", "jpg", "gif"],
+                      "music": ["mp3", "wav"],
+                      "video": ["mp4"],
+                      "document": ["all other resolutions"]}
+        if resolution in categories["image"]:
+            return "image"
+        elif resolution in categories["music"]:
+            return "music"
+        elif resolution in categories["video"]:
+            return "video"
+        else:
+            return "document"
+
+    def get_all(self):
+        files = Resource.query.filter().all()
+        return files
+
+    def create(self, name, file, author):
+        """создание файла на сервере"""
+        resolution = name.split(".")[-1]
+        category = ResourceModel.choose_category(name.split(".")[-1])
+        resource = Resource(author=author)
+        file_id = resource.id
+        path = f"resources/{file_id}.{resolution}"
+        file.save(path)
+        resource.path = path
+        db.session.add(resource)
+        db.session.commit()
+        return resource
+
+    def get(self, id):
+        """получение файла по id"""
+        resource = Resource.query.filter(Resource.id == id).first()
+        if not resource:
+            return
+        return resource
 
 
+class ResourceLinkModel:
+
+    def create(self, resource, place, place_id):
+        """создание ссылки на ресурс"""
+        link = ResourceLink(resource=resource, place=place, place_id=place_id)
+        return link
+
+    def get_for(self, place, place_id):
+        """список ресурсов этого объекта"""
+        resources = ResourceLink.query.filter(
+            ResourceLink.place == place and
+            ResourceLink.place_id == place_id).all()
+        return resources
 
 
 if __name__ == '__main__':
