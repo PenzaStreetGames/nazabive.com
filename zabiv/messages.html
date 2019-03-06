@@ -14,38 +14,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <style>
-        .avatar {
-            width: 50px;
-            border-radius: 41px;
-        }
-
-        .avatar_middle {
-            width: 7vw;
-            border-radius: 100px;
-        }
-
-        .avatar_min {
-            width: 1.9vw;
-            border-radius: 100px;
-        }
-
-        body {
-            background: #f9f9f9;
-        }
-
-
-        .shadow_mdl {
-            box-shadow: -1px -2px 2px rgba(0, 0, 0, 0.15), 2px 2px 5px rgba(0, 0, 0, 0.15);
-        }
-
-        .sign_post {
-            width: 20px;
-            height: 20px;
-        }
-
-
-    </style>
+    <link rel="stylesheet" href="main.css">
     <!-- Custom styles for this template -->
 </head>
 <body>
@@ -66,6 +35,7 @@
             <li class="nav-item">
                 <a class="nav-link disabled" href="#">Disabled</a>
             </li>
+
         </ul>
         <form class="form-inline mt-2 mt-md-0">
             <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
@@ -81,6 +51,14 @@
         <div class="col-3">
             <div class="shadow bg-white">
                 <div class="list-group" id="list-tab" role="tablist">
+                    <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list"
+                       href="#list-home" role="tab" aria-controls="home">Home</a>
+                    <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list"
+                       href="#list-profile" role="tab" aria-controls="profile">Profile</a>
+                    <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list"
+                       href="#list-messages" role="tab" aria-controls="messages">Messages</a>
+                    <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list"
+                       href="#list-settings" role="tab" aria-controls="settings">Settings</a>
                     <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list"
                        href="#list-home" role="tab" aria-controls="home">Home</a>
                     <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list"
