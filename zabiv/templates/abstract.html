@@ -43,28 +43,13 @@
     <h1 class="h1 center mt-4 text-center">{{title_content}}</h1>
 </div>
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-3">
-            <div class="shadow bg-white">
-                <div class="list-group" id="list-tab" role="tablist">
-                    <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list"
-                       href="/profile" role="tab" aria-controls="home">Профиль</a>
-                    <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list"
-                       href="/friends" role="tab" aria-controls="profile">Друзья</a>
-                    <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list"
-                       href="/messages" role="tab" aria-controls="messages">Сообщения</a>
-                    <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list"
-                       href="/groups" role="tab" aria-controls="settings">Группы</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-9 pl-0">
+    <div class="container">
+        <div class="col-12 pl-0">
             {% block content %}{% endblock %}
         </div>
     </div>
 </div>
-{%block modals%}{%endblock%}
-
+{{modal_auth}}
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
