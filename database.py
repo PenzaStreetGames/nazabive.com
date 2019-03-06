@@ -95,6 +95,26 @@ class Friend(db.Model):
     friend = db.Column(db.Integer, nullable=False)
 
 
+class GroupMember(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, nullable=False)
+    group = db.Column(db.Integer, nullable=False)
+
+
+class PostLink(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    post = db.Column(db.Integer, nullable=False)
+    place = db.Column(db.String(20), nullable=False)
+    place_id = db.Column(db.Integer, nullable=False)
+
+
+class ResourceLink(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    resource = db.Column(db.Integer, nullable=False)
+    place = db.Column(db.String(20), nullable=False)
+    place_id = db.Column(db.Integer, nullable=False)
+
+
 class UserModel:
     """обработка пользователей"""
 
@@ -110,6 +130,7 @@ class UserModel:
             db.session.rollback()
 
     def get(self, id):
+        """получеие пользователя по id"""
         user = User.query.filter(User.id == id).first()
         if not user:
             return
@@ -136,6 +157,22 @@ class UserModel:
         if user.password != password:
             return "Wrong password"
         return user
+
+    def create_post(self, user, content):
+        """публикация новости у пользователя на странице"""
+        post = PostModel.create(author=user, content=content)
+        PostLinkModel.create(post=post.id, place="user", place_id=user)
+
+    def repost(self, id, user):
+        """создание ссылки на новость на странице пользователя"""
+        PostLinkModel.create(post=id, place="user", place_id=user)
+
+    def get_news(self, user):
+        """список новостей пользователя"""
+        post_links = PostLink.query.filter(PostLink.place == "user" and
+                                           PostLink.place_id == user).all()
+        posts = [post.post for post in post_links]
+        return posts
 
 
 class FriendRequestModel:
@@ -313,6 +350,7 @@ class ChatModel:
         users = ChatMember.query.filter(ChatMember.chat == chat).all()
         return users
 
+
 class MessageModel:
 
     def create(self, user, chat, text):
@@ -357,6 +395,33 @@ class MessageModel:
                                         Message.time > user.time).all()
         return messages
 
+
+class PostLinkModel:
+
+    def create(self, post, place, place_id):
+        """создание ссылки на новость"""
+        link = PostLink(post=post.id, place=place, place_id=place_id)
+        db.session.add(link)
+        db.session.commit()
+        return link
+
+    def create_post(self, place, place_id, content):
+        """публикация новости в нужном месте"""
+        post = PostModel.create(author=user, content=content)
+        PostLinkModel.create(post=post.id, place="user", place_id=user)
+
+    def repost(self, id, user):
+        """создание ссылки на новость в нужном объекте"""
+        PostLinkModel.create(post=id, place="user", place_id=user)
+
+    def get_news(self, user):
+        """список новостей в нужном объекте"""
+        post_links = PostLink.query.filter(PostLink.place == "user" and
+                                           PostLink.place_id == user).all()
+        posts = [post.post for post in post_links]
+        return posts
+
+
 class PostModel:
 
     def create(self, author, content):
@@ -364,6 +429,7 @@ class PostModel:
         post = Post(author=author, content=content)
         db.session.add(post)
         db.session.commit()
+        return post
 
     def get(self, id):
         """получение новости по id"""
@@ -380,12 +446,9 @@ class PostModel:
         post.content = new_content
         db.session.commit()
 
-    def get_of(self, author):
-        """список новостей, выложенных пользователем"""
-        posts = Post.query.filter(Post.author == author).all()
-        return posts
 
 class LikeModel:
+    """обработка оценок"""
 
     def create(self, author, post):
         """создание оценки"""
@@ -422,6 +485,87 @@ class LikeModel:
         except Exception as error:
             print(error)
             db.session.rollback()
+
+
+class GroupMemberModel:
+
+    def create(self, user, group):
+        """создание участника группы"""
+        member = GroupMember(user=user, group=group)
+        db.session.add(member)
+        db.session.commit()
+
+    def get_by(self, user, group):
+        """получение участника группы по пользователю и группе"""
+        member = GroupMember.query.filter(GroupMember.user == user and
+                                          GroupMember.group == group).first()
+        if not member:
+            return
+        return member
+
+    def get(self, id):
+        """получение участника группы по id"""
+        member = GroupMember.query.filter(GroupMember.id == id).first()
+        if not member:
+            return
+        return member
+
+    def delete(self, id):
+        """удаление участника группы"""
+        try:
+            GroupMember.query.filter(GroupMember.id == id).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
+
+
+class GroupModel:
+
+    def create(self, *users, name="Unnamed"):
+        """создание группы"""
+        group = Group(name=name)
+        db.session.add(group)
+        db.session.commit()
+        for user in users:
+            member = Group(user=user, group=group.id)
+            db.session.add(member)
+        db.session.commit()
+
+    def get(self, id):
+        """получение группы по id"""
+        group = Group.query.filter(Group.id == id).first()
+        if not group:
+            return
+        return group
+
+    def get_for(self, user):
+        """получение групп пользователей"""
+        groups = GroupMember.query.filter(GroupMember.user == user).all()
+        return groups
+
+    def get_of(self, group):
+        """получение участников группы"""
+        members = GroupMember.query.filter(GroupMember.group == group).all()
+        return members
+
+    def create_post(self, group, content):
+        """публикация новости в группе на странице"""
+        post = PostModel.create(author=group, content=content)
+        PostLinkModel.create(post=post.id, place="group", place_id=group)
+
+    def repost(self, id, group):
+        """создание ссылки на новость на странице группы"""
+        PostLinkModel.create(post=id, place="group", place_id=group)
+
+    def get_news(self, group):
+        """список новостей группы"""
+        post_links = PostLink.query.filter(PostLink.place == "group" and
+                                           PostLink.place_id == group).all()
+        posts = [post.post for post in post_links]
+        return posts
+
+
 
 
 if __name__ == '__main__':
