@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, session, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField
 from wtforms.validators import DataRequired
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from database import User, UserModel
 
 
 class AddNewsForm(FlaskForm):
@@ -42,7 +45,19 @@ class Config:
     DIR_IMG = "/static/images/"
 
 
+def get_form_data(*params):
+    return [request.form.get(param) for param in params]
+
+
+def is_auth():
+    return "user_login" in session \
+           and UserModel().exists(session["user_login"], session["user_password"]) != "Not found"
+
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = 'dryndex_corp'
 
 
@@ -52,20 +67,51 @@ app.config['SECRET_KEY'] = 'dryndex_corp'
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/index", methods=['GET', 'POST'])
 def index():
+    if is_auth():
+        return redirect("/profile")
+    auth = AuthForm()
     if request.method == "POST":
-        pass
+        if auth.validate_on_submit():
+            login, password = get_form_data("login", "password")
+            user = UserModel()
+            user_object = user.exists(login, password)
+            if user_object and user_object != "Not found":
+                session["user_id"] = user_object.id
+                session["user_login"] = user_object.username
+                session["user_password"] = user_object.password
+                session["user_name"] = user_object.name
+                session["user_surname"] = user_object.surname
+
+                return redirect("/profile")
+
     render_data = {
         "title": "Главная",
-        "form": AuthForm()
+        "form": auth
 
     }
     return render_template("index.html", **render_data)
 
 
+@app.route("/logout")
+def logout():
+    session.pop('user_login', 0)
+    session.pop('user_password', 0)
+    session.pop('user_name', 0)
+    session.pop('user_surname', 0)
+    session.pop('user_id', 0)
+    return redirect('/')
+
+
 @app.route("/reg", methods=['GET', 'POST'])
 def reg():
+    if is_auth():
+        return redirect("/profile")
     if request.method == "POST":
-        pass
+        name, surname, login, password = get_form_data("name", "surname", "login", "password")
+        if login and password:
+            user = UserModel()
+            user.add(login, password, name, surname)
+
     render_data = {
         "title": "Регистрация",
 
