@@ -19,7 +19,7 @@ class User(db.Model):
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=False)
+    avatar = db.Column(db.Integer, nullable=True)
 
 
 class Post(db.Model):
@@ -608,7 +608,5 @@ if __name__ == '__main__':
     # первичная инициализация, уже проведена
     # users_initialization()
     db.create_all()
-    print(UserModel.get_all())
-    UserModel.add("User", "123", "Паша", "Соломатин")
-    print(UserModel.get_all())
+    print(UserModel().get_all())
     app.run(port=8080, host="127.0.0.1")
