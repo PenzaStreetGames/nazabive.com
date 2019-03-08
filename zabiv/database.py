@@ -436,6 +436,13 @@ class PostModel:
             return
         return post
 
+    def get_on_user_id(self, id):
+        """получение новости по id"""
+        post = Post.query.filter(Post.id == id).first()
+        if not post:
+            return
+        return post
+
     def edit(self, id, new_content):
         """редактирование новости"""
         post = PostModel.get(id)
@@ -609,7 +616,5 @@ if __name__ == '__main__':
     # первичная инициализация, уже проведена
     # users_initialization()
     db.create_all()
-    print(UserModel.get_all)
-    UserModel.add("User", "123", "Паша", "Соломатин")
-    print(UserModel.get_all)
+
     app.run(port=8080, host="127.0.0.1")
