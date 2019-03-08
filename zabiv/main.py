@@ -58,7 +58,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-app.config['SECRET_KEY'] = 'dryndex_corp'
+app.config['SECRET_KEY'] = 'dryandex_corp'
 
 
 # dbo = DB()
@@ -151,12 +151,14 @@ def profile():
 
 @app.route("/photo", methods=['GET', 'POST'])
 def photo():
+    if not is_auth():
+        return redirect("/")
     if request.method == "POST":
         photo_file = get_form_data("img")
         comment = get_form_data("text")
     render_data = {
         "title": "Фотографии",
-        "photos": [],
+        "photos": ResourceModel().get_for(session["user_id"], category="photo"),
         "form": ImageForm()
 
     }
@@ -181,11 +183,13 @@ def videos():
 
 @app.route("/audio", methods=['GET', 'POST'])
 def audio():
+    if not is_auth():
+        return redirect("/")
     if request.method == "POST":
         audio_file = get_form_data("audio")
     render_data = {
         "title": "Аудиозаписи",
-        "audios": [],
+        "audios": ResourceModel().get_for(session["user_id"], category="audio"),
         "form": AudioForm()
 
     }
@@ -194,12 +198,18 @@ def audio():
 
 @app.route("/documents", methods=['GET', 'POST'])
 def documents():
-
+    if not is_auth():
+        return redirect("/")
     if request.method == "POST":
         doc_file = get_form_data("document")
+        resource = ResourceModel().create(name="заглушка.png", file=doc_file,
+                                          author=session["user_id"])
+        ResourceLinkModel().create(resource=resource, place="user",
+                                   place_id=session["user_id"])
     render_data = {
         "title": "Документы",
-        "documents": [],
+        "documents": ResourceModel().get_for(session["user_id"],
+                                             category="document"),
         "form": DocumentForm()
 
     }
@@ -260,5 +270,4 @@ def page_not_found(e):
 
 
 if __name__ == '__main__':
-    db.create_all()
     app.run(port=8080, host="127.0.0.1")

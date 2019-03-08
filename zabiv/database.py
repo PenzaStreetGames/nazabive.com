@@ -7,6 +7,14 @@ from datetime import datetime
 from main import db
 
 
+if __name__ == '__main__':
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db = SQLAlchemy(app)
+    app.config['SECRET_KEY'] = 'dryandex_corp'
+
+
 class User(db.Model):
     """пользователи"""
     id = db.Column(db.Integer, primary_key=True)
@@ -653,12 +661,6 @@ class ResourceLinkModel:
 
 
 if __name__ == '__main__':
-
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = SQLAlchemy(app)
-    app.config['SECRET_KEY'] = 'penza_street_networks'
 
     # первичная инициализация, уже проведена
     # users_initialization()
