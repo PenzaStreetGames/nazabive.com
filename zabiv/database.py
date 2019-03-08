@@ -4,12 +4,7 @@ from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired
 from flask import Flask, redirect, request, render_template, session
 from datetime import datetime
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-app.config['SECRET_KEY'] = 'penza_street_networks'
+from main import db
 
 
 class User(db.Model):
@@ -658,6 +653,13 @@ class ResourceLinkModel:
 
 
 if __name__ == '__main__':
+
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db = SQLAlchemy(app)
+    app.config['SECRET_KEY'] = 'penza_street_networks'
+
     # первичная инициализация, уже проведена
     # users_initialization()
     db.create_all()

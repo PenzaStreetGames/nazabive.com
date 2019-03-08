@@ -4,7 +4,7 @@ from wtforms import StringField, SubmitField, TextAreaField, PasswordField, File
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from database import User, UserModel, Post, PostModel
+from database import *
 
 
 class AddNewsForm(FlaskForm):
@@ -112,6 +112,7 @@ def reg():
             user = UserModel()
             user.add(login, password, name, surname)
             user_object = user.exists(login, password)
+            print(user_object)
             if user_object and user_object != "Not found":
                 session["user_id"] = user_object.id
                 session["user_login"] = user_object.username
@@ -164,12 +165,14 @@ def photo():
 
 @app.route("/videos", methods=['GET', 'POST'])
 def videos():
+    if not is_auth():
+        return redirect("/")
     if request.method == "POST":
         video_file = get_form_data("video")
         comment = get_form_data("text")
     render_data = {
         "title": "Видеозаписи",
-        "videos": [],
+        "videos": ResourceModel().get_for(session["user_id"], category="video"),
         "form": VideoForm()
 
     }
@@ -252,4 +255,5 @@ def news():
 
 
 if __name__ == '__main__':
+    db.create_all()
     app.run(port=8080, host="127.0.0.1")
