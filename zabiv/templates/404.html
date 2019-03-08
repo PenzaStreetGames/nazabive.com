@@ -36,17 +36,17 @@
         <div class="inner">
             <h3 class="masthead-brand">DRYANDEX CORP</h3>
             <nav class="nav nav-masthead justify-content-center">
-                <a class="nav-link" href="#" data-toggle="modal" data-target="#auth">Войти</a>
+                <a class="nav-link active" href="/">Главная</a>
             </nav>
 
         </div>
     </header>
 
     <main role="main" class="inner cover">
-        <h1 class="cover-heading">&laquo;На забиве&raquo;</h1>
-        <p class="lead">Пожалуй, лучшая социальная сеть в мире! Да что там в мире, в России!</p>
+        <h1 class="cover-heading">Страница не найдена</h1>
+        <p class="lead">Запрашиваемой страницы не существует</p>
         <p class="lead">
-            <a href="/reg" class="btn btn-lg btn-secondary">Вступить</a>
+            <a href="/" class="btn btn-lg btn-secondary">На главную</a>
         </p>
     </main>
 
@@ -57,44 +57,7 @@
     </footer>
 </div>
 
-<div class="modal fade text-dark" id="auth" tabindex="-1" role="dialog" aria-labelledby="auth"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Войти</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="post" novalidate>
-                    {{ form.hidden_tag() }}
-                    <p>
-                        {{ form.login.label }}<br>
-                        {{ form.login(class_="form-control") }}<br>
-                        {% for error in form.login.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
-                    <p>
-                        {{ form.password.label }}<br>
-                        {{ form.password(class_="form-control") }}<br>
-                        {% for error in form.password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
-                    <p>{{ form.submit() }}</p>
-                </form>
-            </div>
 
-        </div>
-    </div>
-</div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
