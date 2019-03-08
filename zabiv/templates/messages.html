@@ -3,27 +3,28 @@
 
 {% block content %}
 
+{% for dialog in dialogs%}
 <div class="row">
     <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
         <div class="pt-3 pb-2">
             <div class="row ml-0">
                 <div class="col-1">
-                    <img src="/static/images/avatar.png" alt="1" class="avatar"/>
+                    <img src="{{dialog.avatar}}" alt="1" class="avatar"/>
                 </div>
                 <div class="col-9 p-0">
                     <p class="h6">Dashboard</p>
                     <div class="row ml-1">
                         <div class="col-1 p-0 text-center">
-                            <img src="/static/images/avatar.png" alt="1" class="avatar_min"/>
+                            <img src="{{dialog.user.avatar}}" alt="1" class="avatar_min"/>
                         </div>
                         <div class="col-11 p-0">
-                            <p class="small mt-1">Теперь WYSIWYG Web Builder </p>
+                            <p class="small mt-1">{{dialog.user.text}} </p>
                         </div>
                     </div>
 
                 </div>
                 <div class="col-2">
-                    22:38
+                    {{dialog.time}}
                 </div>
             </div>
         </div>
@@ -31,32 +32,6 @@
 
     </div>
 </div>
-<div class="row">
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
-        <div class="pt-3 pb-2">
-            <div class="row ml-0">
-                <div class="col-1">
-                    <img src="/static/images/avatar.png" alt="1" class="avatar"/>
-                </div>
-                <div class="col-9 p-0">
-                    <p class="h6">Dashboard</p>
-                    <div class="row ml-1">
-                        <div class="col-1 p-0 text-center">
-                            <img src="/static/images/avatar.png" alt="1" class="avatar_min"/>
-                        </div>
-                        <div class="col-11 p-0">
-                            <p class="small mt-1">Теперь WYSIWYG Web Builder </p>
-                        </div>
-                    </div>
+{%endfor%}
 
-                </div>
-                <div class="col-2">
-                    22:38
-                </div>
-            </div>
-        </div>
-
-
-    </div>
-</div>
 {%endblock%}

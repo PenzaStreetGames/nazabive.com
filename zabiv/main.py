@@ -206,9 +206,10 @@ def documents():
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     if request.method == "POST":
-        pass
+        search_words = get_form_data("search")
     render_data = {
         "title": "Друзья",
+        "friends": [],
 
     }
     return render_template("friends.html", **render_data)
@@ -220,6 +221,7 @@ def dialogs():
         pass
     render_data = {
         "title": "Друзья",
+        "dialogs": [],
 
     }
     return render_template("messages.html", **render_data)
@@ -231,6 +233,7 @@ def dialog(id):
         pass
     render_data = {
         "title": "Переписка",
+        "messages": [],
 
     }
     return render_template("dialog.html", **render_data)
@@ -242,6 +245,7 @@ def news():
         pass
     render_data = {
         "title": "Новости",
+        "news": [],
 
     }
     return render_template("news.html", **render_data)
