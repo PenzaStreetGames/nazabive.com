@@ -47,7 +47,9 @@ class Group(db.Model):
 class Resource(db.Model):
     """ресурсы"""
     id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(20), unique=False, nullable=False)
     path = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(120), unique=True, nullable=False)
     author = db.Column(db.Integer, nullable=False)
 
 
@@ -166,9 +168,22 @@ class UserModel:
     def set_avatar(self, user, resource):
         """изменение портрета пользователя"""
         user = UserModel.get(user)
-        resource = ResourceModel.get(resource)
+        resource = ResourceModel().get(resource)
         if resource.category == "image":
             user.avatar = resource
+
+    def search(self, name="", surname=""):
+        """поиск пользователя по имени и/или фамилии"""
+        if name and not surname:
+            users = User.query.filter(User.name.like(f"%{name}%")).all()
+        elif not name and surname:
+            users = User.query.filter(User.surname.like(f"%{surname}%")).all()
+        elif name and surname:
+            users = User.query.filter(User.name.like(f"%{name}%") and
+                                      User.surname.like(f"%{surname}%")).all()
+        else:
+            users = User.query.all()
+        return users
 
 
 class FriendRequestModel:
@@ -216,7 +231,7 @@ class FriendRequestModel:
         """подтвердить заявку"""
         friend_request = FriendRequest.query.filter(
             FriendRequest.id == id).first()
-        FriendModel.create_connection(friend_request.sender,
+        FriendModel().create_connection(friend_request.sender,
                                       friend_request.receiver)
         try:
             FriendRequest.query.filter(FriendRequest.id == id).delete()
@@ -378,7 +393,7 @@ class MessageModel:
 
     def edit(self, id, new_text):
         """редактирование сообщения"""
-        message = MessageModel.get(id)
+        message = MessageModel().get(id)
         if not message:
             return
         message.text = new_text
@@ -386,7 +401,7 @@ class MessageModel:
 
     def new_messages(self, user, chat):
         """список непрочитанных сообщений"""
-        user = UserModel.get(user)
+        user = UserModel().get(user)
         messages = Message.query.filter(Message.chat == chat and
                                         Message.time > user.time).all()
         return messages
@@ -403,13 +418,13 @@ class PostLinkModel:
 
     def create_post(self, place, place_id, content):
         """публикация новости"""
-        post = PostModel.create(author_type=place, author=place_id,
-                                content=content)
-        PostLinkModel.create(post=post.id, place="user", place_id=place_id)
+        post = PostModel().create(author_type=place, author=place_id,
+                                  content=content)
+        PostLinkModel().create(post=post.id, place="user", place_id=place_id)
 
     def repost(self, id, place, place_id):
         """создание ссылки на новость"""
-        PostLinkModel.create(post=id, place=place, place_id=place_id)
+        PostLinkModel().create(post=id, place=place, place_id=place_id)
 
     def get_news(self, place, place_id):
         """список новостей"""
@@ -417,6 +432,18 @@ class PostLinkModel:
                                            PostLink.place_id == place_id).all()
         posts = [post.post for post in post_links]
         return posts
+
+    def get_news_tape(self, user):
+        """новостная лента пользователя"""
+        news = []
+        friends = FriendModel().get_friends(user)
+        for friend in friends:
+            news += [PostLinkModel().get_news("user", friend)]
+        groups = GroupModel().get_for(user)
+        for group in groups:
+            news += [PostLinkModel().get_news("group", group)]
+        news.sort(key=lambda post: post.date, reverse=True)
+        return news
 
 
 class PostModel:
@@ -437,7 +464,7 @@ class PostModel:
 
     def edit(self, id, new_content):
         """редактирование новости"""
-        post = PostModel.get(id)
+        post = PostModel().get(id)
         if not post:
             return "Not found"
         post.content = new_content
@@ -546,6 +573,11 @@ class GroupModel:
         members = GroupMember.query.filter(GroupMember.group == group).all()
         return members
 
+    def search(self, name):
+        """поиск группы по имени"""
+        groups = Group.query.filter(Group.name.like(f"%{name}%")).all()
+        return groups
+
 
 class ResourceModel:
 
@@ -571,8 +603,9 @@ class ResourceModel:
     def create(self, name, file, author):
         """создание файла на сервере"""
         resolution = name.split(".")[-1]
-        category = ResourceModel.choose_category(name.split(".")[-1])
-        resource = Resource(author=author)
+        filename = ".".join(name.split(".")[:-1])
+        category = ResourceModel().choose_category(name.split(".")[-1])
+        resource = Resource(author=author, name=filename, category=category)
         file_id = resource.id
         path = f"resources/{file_id}.{resolution}"
         file.save(path)
@@ -587,6 +620,26 @@ class ResourceModel:
         if not resource:
             return
         return resource
+
+    def get_for(self, user, category=""):
+        """список фалов пользователя"""
+        if category:
+            resources = Resource.query.filter(
+                Resource.author == user and Resource.category == category).all()
+        else:
+            resources = Resource.query.filter(Resource.author == user).all()
+        return resources
+
+    def search(self, name, category=""):
+        """поиск файла по имени"""
+        if category:
+            resources = Resource.query.filter(
+                Resource.name.like(f"%name%") and
+                Resource.category == category).all()
+        else:
+            resources = Resource.query.filter(
+                Resource.name.like(f"%name%")).all()
+        return resources
 
 
 class ResourceLinkModel:
@@ -608,7 +661,7 @@ if __name__ == '__main__':
     # первичная инициализация, уже проведена
     # users_initialization()
     db.create_all()
-    print(UserModel.get_all)
-    UserModel.add("User", "123", "Паша", "Соломатин")
-    print(UserModel.get_all)
+    print(UserModel().get_all())
+    UserModel().add("User", "123", "Паша", "Соломатин")
+    print(UserModel().get_all())
     app.run(port=8080, host="127.0.0.1")
