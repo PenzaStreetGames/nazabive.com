@@ -622,7 +622,7 @@ class ResourceModel:
         return resource
 
     def get_for(self, user, category=""):
-        """список фалов пользователя"""
+        """список файлов пользователя"""
         if category:
             resources = Resource.query.filter(
                 Resource.author == user and Resource.category == category).all()

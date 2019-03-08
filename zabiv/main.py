@@ -4,7 +4,7 @@ from wtforms import StringField, SubmitField, TextAreaField, PasswordField, File
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from database import User, UserModel
+from database import User, UserModel, Post, PostModel
 
 
 class AddNewsForm(FlaskForm):
@@ -111,6 +111,15 @@ def reg():
         if login and password:
             user = UserModel()
             user.add(login, password, name, surname)
+            user_object = user.exists(login, password)
+            if user_object and user_object != "Not found":
+                session["user_id"] = user_object.id
+                session["user_login"] = user_object.username
+                session["user_password"] = user_object.password
+                session["user_name"] = user_object.name
+                session["user_surname"] = user_object.surname
+
+                return redirect("/profile")
 
     render_data = {
         "title": "Регистрация",
@@ -121,12 +130,19 @@ def reg():
 
 @app.route("/profile", methods=['GET', 'POST'])
 def profile():
+    form = AddNewsForm()
+    post = PostModel()
     if request.method == "POST":
-        pass
+        if form.validate_on_submit():
+            title, content = get_form_data("title", "content")
+            post.create(1, session["user_id"], content)
     render_data = {
         "title": "Регистрация",
+        "name": session["user_name"],
+        "surname": session["user_surname"],
         "avatar_profile": Config.DIR_IMG + "ava.jpg",
-        "form": AddNewsForm()
+        "posts": [],
+        "form": form
 
     }
     return render_template("profile.html", **render_data)
@@ -135,9 +151,11 @@ def profile():
 @app.route("/photo", methods=['GET', 'POST'])
 def photo():
     if request.method == "POST":
-        pass
+        photo_file = get_form_data("img")
+        comment = get_form_data("text")
     render_data = {
         "title": "Фотографии",
+        "photos": [],
         "form": ImageForm()
 
     }
@@ -147,9 +165,11 @@ def photo():
 @app.route("/videos", methods=['GET', 'POST'])
 def videos():
     if request.method == "POST":
-        pass
+        video_file = get_form_data("video")
+        comment = get_form_data("text")
     render_data = {
         "title": "Видеозаписи",
+        "videos": [],
         "form": VideoForm()
 
     }
@@ -159,9 +179,10 @@ def videos():
 @app.route("/audio", methods=['GET', 'POST'])
 def audio():
     if request.method == "POST":
-        pass
+        audio_file = get_form_data("audio")
     render_data = {
         "title": "Аудиозаписи",
+        "audios": [],
         "form": AudioForm()
 
     }
@@ -170,10 +191,12 @@ def audio():
 
 @app.route("/documents", methods=['GET', 'POST'])
 def documents():
+
     if request.method == "POST":
-        pass
+        doc_file = get_form_data("document")
     render_data = {
         "title": "Документы",
+        "documents": [],
         "form": DocumentForm()
 
     }
@@ -183,9 +206,10 @@ def documents():
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     if request.method == "POST":
-        pass
+        search_words = get_form_data("search")
     render_data = {
         "title": "Друзья",
+        "friends": [],
 
     }
     return render_template("friends.html", **render_data)
@@ -197,6 +221,7 @@ def dialogs():
         pass
     render_data = {
         "title": "Друзья",
+        "dialogs": [],
 
     }
     return render_template("messages.html", **render_data)
@@ -208,6 +233,7 @@ def dialog(id):
         pass
     render_data = {
         "title": "Переписка",
+        "messages": [],
 
     }
     return render_template("dialog.html", **render_data)
@@ -219,6 +245,7 @@ def news():
         pass
     render_data = {
         "title": "Новости",
+        "news": [],
 
     }
     return render_template("news.html", **render_data)

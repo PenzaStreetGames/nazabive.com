@@ -12,42 +12,12 @@
     </div>
     <div class="mt-1 ml-1 col-12">
         <div class="row">
+            {%for img in photos%}
             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
+                <img src="{{img.link}}" class="col-12 p-0 shadow" alt="photo" />
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/images/avatar.png" class="col-12 p-0 shadow" alt="photo" />
-            </div>
+            {%endfor%}
+
         </div>
     </div>
 </div>
