@@ -232,7 +232,7 @@ class FriendRequestModel:
         friend_request = FriendRequest.query.filter(
             FriendRequest.id == id).first()
         FriendModel().create_connection(friend_request.sender,
-                                      friend_request.receiver)
+                                        friend_request.receiver)
         try:
             FriendRequest.query.filter(FriendRequest.id == id).delete()
             db.session.commit()
