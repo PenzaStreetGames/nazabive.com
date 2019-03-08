@@ -51,8 +51,8 @@ class Resource(db.Model):
     """ресурсы"""
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(20), unique=False, nullable=False)
-    path = db.Column(db.String(120), unique=True, nullable=False)
-    name = db.Column(db.String(120), unique=True, nullable=False)
+    path = db.Column(db.String(120), unique=True, nullable=True)
+    name = db.Column(db.String(120), nullable=False)
     author = db.Column(db.Integer, nullable=False)
 
 
@@ -609,11 +609,13 @@ class ResourceModel:
         filename = ".".join(name.split(".")[:-1])
         category = ResourceModel().choose_category(name.split(".")[-1])
         resource = Resource(author=author, name=filename, category=category)
+        db.session.add(resource)
+        db.session.commit()
+        print(resource.id)
         file_id = resource.id
         path = f"resources/{file_id}.{resolution}"
         file.save(path)
         resource.path = path
-        db.session.add(resource)
         db.session.commit()
         return resource
 
@@ -649,7 +651,10 @@ class ResourceLinkModel:
 
     def create(self, resource, place, place_id):
         """создание ссылки на ресурс"""
-        link = ResourceLink(resource=resource, place=place, place_id=place_id)
+        link = ResourceLink(resource=resource.id, place=place,
+                            place_id=place_id)
+        db.session.add(link)
+        db.session.commit()
         return link
 
     def get_for(self, place, place_id):

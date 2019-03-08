@@ -201,8 +201,9 @@ def documents():
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
-        doc_file = get_form_data("document")
-        resource = ResourceModel().create(name="заглушка.png", file=doc_file,
+        file = request.files["document"]
+        filename = file.filename
+        resource = ResourceModel().create(name=filename, file=file,
                                           author=session["user_id"])
         ResourceLinkModel().create(resource=resource, place="user",
                                    place_id=session["user_id"])
