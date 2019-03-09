@@ -31,6 +31,7 @@ class Post(db.Model):
     author_type = db.Column(db.Integer, nullable=False)
     author = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class Chat(db.Model):
@@ -54,14 +55,6 @@ class Resource(db.Model):
     path = db.Column(db.String(120), unique=True, nullable=True)
     name = db.Column(db.String(120), nullable=False)
     author = db.Column(db.Integer, nullable=False)
-
-
-"""class Avatars(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    avatar_id = db.Column(db.Integer,
-                          db.ForeignKey("resources.id"),
-                          nullable=False)
-    resource = db.relationship("User", backref=db.backref("Avatar", lazy=True))"""
 
 
 class Message(db.Model):
@@ -115,6 +108,7 @@ class PostLink(db.Model):
     post = db.Column(db.Integer, nullable=False)
     place = db.Column(db.String(20), nullable=False)
     place_id = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class ResourceLink(db.Model):
@@ -438,15 +432,13 @@ class PostLinkModel:
 
     def get_news_tape(self, user):
         """новостная лента пользователя"""
-        news = [PostLinkModel().get_news("user", user)]
+        news = PostLinkModel().get_news("user", user)
         friends = FriendModel().get_friends(user)
         for friend in friends:
             news += PostLinkModel().get_news("user", friend)
         groups = GroupModel().get_for(user)
         for group in groups:
             news += PostLinkModel().get_news("group", group)
-        print(news)
-        news.sort(key=lambda post: post.date, reverse=True)
         return news
 
 
@@ -668,8 +660,6 @@ class ResourceLinkModel:
 
 if __name__ == '__main__':
 
-    # первичная инициализация, уже проведена
-    # users_initialization()
     db.create_all()
     print(UserModel().get_all())
     UserModel().add("User", "123", "Паша", "Соломатин")

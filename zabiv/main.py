@@ -288,6 +288,7 @@ def news():
         pass
     posts_id = PostLinkModel().get_news_tape(user=session["user_id"])
     posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
