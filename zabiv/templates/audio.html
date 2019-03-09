@@ -1,0 +1,63 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        <div class="pt-2 text-center">
+            <p><a href="" data-toggle="modal" data-target="#newRow">Добавить аудиозапись</a></p>
+        </div>
+
+    </div>
+    <div class="mt-1 ml-1 col-12">
+        <div class="row">
+            {% for audio in audios%}
+            <div class="col-12 p-2">
+                <audio controls class="col-12 p-0 shadow">
+                    <source src="{{audio.link}}" type="audio/mpeg">
+                </audio>
+            </div>
+            {%endfor%}
+
+        </div>
+    </div>
+</div>
+
+{%endblock%}
+
+
+{% block modals %}
+
+<div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление аудиозаписи</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.audio.label }}<br>
+                        {{ form.audio(class_="form-control") }}<br>
+                        {% for error in form.audio.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>{{ form.submit() }}</p>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+

@@ -1,0 +1,79 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+<form name="search" method="post">
+    <div class="row">
+        <div class="col-10 p-0">
+            <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                   placeholder="Введите имя друга"
+                   name="search">
+        </div>
+        <div class="col-2 p-0">
+            <button type="submit" class="btn btn-primary mb-2 col-12">Поиск</button>
+
+        </div>
+    </div>
+</form>
+<div class="row">
+    {% for document in documents%}
+    <div class="mt-1 ml-1 col-12">
+        <div class="row">
+            <div class="col-12 p-2 bg-white shadow">
+                <div class="row">
+                    <div class="col-1">
+                        <img src="/static/images/document.png" class="col-12 p-0 sign_post" alt="photo" />
+                    </div>
+                    <div class="col-11"><a href="{{document.link}}">{{document.name}}</a></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    {%endfor%}
+    <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12 shadow">
+        <div class="pt-2 text-center">
+            <p><a href="" data-toggle="modal" data-target="#newRow">Добавить документ</a></p>
+        </div>
+
+    </div>
+</div>
+
+{%endblock%}
+
+
+{% block modals %}
+
+<div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление документа</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.document.label }}<br>
+                        {{ form.document(class_="form-control pb-5") }}<br>
+                        {% for error in form.document.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>{{ form.submit() }}</p>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+

@@ -1,0 +1,30 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        {% for message in messages%}
+        <div class="pt-3 pb-2">
+            <div class="row ml-0">
+                <div class="col-1">
+                    <img src="{{message.user.avatar}}" alt="1" class="avatar"/>
+                </div>
+                <div class="col-9 p-0">
+                    <p class="h6">{{message.user.name}}</p>
+                    <div class="row ml-1">
+                        <p class="small mt-1">{{message.text}} </p>
+                    </div>
+
+                </div>
+                <div class="col-2">
+                    {{message.time}}
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+
+    </div>
+</div>
+{%endblock%}

@@ -1,0 +1,140 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
+        <div class="row">
+            <div class="col-4 text-center m-4">
+                <img src="{{avatar_profile}}" alt="asd" class="col-12 ava p-0"/>
+                <form action="/profile" method="post" enctype="multipart/form-data">
+                    <p>
+                        {{ ava.document.label }}<br>
+                        {{ ava.document(class_="form-control pb-5") }}<br>
+                        {% for error in ava.document.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>{{ ava.submit_ava() }}</p>
+                </form>
+            </div>
+            <div class="col-7 mt-4">
+                <h1 class="h1">{{surname}} {{name}}</h1>
+                <p class="pb-3 small">Теперь WYSIWYG Web Builder имеет встроенный конструктор для мобильных веб-страниц.
+                    Это позволяет легко создавать мобильные версии страниц без необходимости внешнего программного
+                    обеспечения.</p>
+                <table class="col-12">
+                    <tr>
+                        <td>Характеристика</td>
+                        <td>значение</td>
+                    </tr>
+                    <tr>
+                        <td>Характеристика</td>
+                        <td>значение</td>
+                    </tr>
+                    <tr>
+                        <td>Характеристика</td>
+                        <td>значение</td>
+                    </tr>
+                    <tr>
+                        <td>Характеристика</td>
+                        <td>значение</td>
+                    </tr>
+                    <tr>
+                        <td>Характеристика</td>
+                        <td>значение</td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="row">
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        <div class="pt-2 text-center">
+            <p>Есть о чем рассказать?  <a href="" data-toggle="modal" data-target="#newRow">Добавить запись</a></p>
+        </div>
+
+    </div>
+    {% for i in range(number)%}
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <div class="row ml-0">
+                <div class="col-3">
+                    <img src="{{avatars[i].path}}" alt="1" class="avatar shadow"/>
+                </div>
+                <div class="col-9">
+                    <p class="h4 mt-2">{{authors[i].name}} {{authors[i].surname}}</p>
+                </div>
+            </div>
+        </div>
+        <p class="p-3">{{news[i].content}}</p>
+        <div class="border-top mt-2 mb-2 ml-3">
+            <div class="row">
+                <div class="p-2">
+                    <a href="">
+                        <img src="/static/images/like.png" alt="like" class="sign_post m-2"/>
+                        {{likes[i]}}
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    {%endfor%}
+</div>
+
+{%endblock%}
+
+
+
+{% block modals %}
+
+<div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление новости</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.content.label }}<br>
+                        {{ form.content(class_="form-control") }}<br>
+                        {% for error in form.content.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.document.label }}<br>
+                        {{ form.document(class_="form-control pb-5") }}<br>
+                        {% for error in form.document.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>{{ form.submit() }}</p>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+

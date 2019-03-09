@@ -1,0 +1,50 @@
+{% extends "main.html" %}
+
+
+{% block content %}
+<form name="search" method="post">
+    <div class="row">
+        <div class="col-9 p-0 ml-1">
+            <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                   placeholder="Введите имя друга"
+                   name="search">
+        </div>
+        <div class="col-2 p-0 ml-1">
+            <button type="submit" class="btn btn-primary mb-2 col-12">Поиск</button>
+
+        </div>
+    </div>
+</form>
+<div class="row">
+    {% for row in news%}
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <div class="row ml-0">
+                <div class="col-3">
+                    <img src="{{row.user.avatar}}" alt="1" class="avatar shadow"/>
+                </div>
+                <div class="col-9">
+                    <p class="h4 mt-2">{{row.user.name}} {{row.user.surname}}</p>
+                </div>
+            </div>
+        </div>
+        <p class="p-3">{{row.content}}</p>
+        <div class="border-top mt-2 mb-2 ml-3">
+            <div class="row">
+                <div class="p-2">
+                    <a href="">
+                        <img src="/static/images/like.png" alt="like" class="sign_post m-2"/>
+                        {{row.likes}}
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    {%endfor%}
+</div>
+
+{%endblock%}
+
+
