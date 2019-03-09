@@ -611,7 +611,6 @@ class ResourceModel:
         resource = Resource(author=author, name=filename, category=category)
         db.session.add(resource)
         db.session.commit()
-        print(resource.id)
         file_id = resource.id
         path = f"resources/{file_id}.{resolution}"
         file.save(path)
@@ -629,10 +628,11 @@ class ResourceModel:
     def get_for(self, user, category=""):
         """список файлов пользователя"""
         if category:
-            resources = Resource.query.filter_by(
-                author=user, category=category).all()
+            resources = Resource.query.filter(
+                Resource.author == user and Resource.category == category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
+        print(resources)
         return resources
 
     def search(self, name, category=""):
