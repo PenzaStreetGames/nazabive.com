@@ -612,7 +612,7 @@ class ResourceModel:
         db.session.add(resource)
         db.session.commit()
         file_id = resource.id
-        path = f"resources/{file_id}.{resolution}"
+        path = f"static/resources/{file_id}.{resolution}"
         file.save(path)
         resource.path = path
         db.session.commit()
