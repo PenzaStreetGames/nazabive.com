@@ -51,15 +51,6 @@
                     </div>
                     {% endfor %}
                     </p>
-                    <p>
-                        {{ form.text.label }}<br>
-                        {{ form.text(class_="form-control") }}<br>
-                        {% for error in form.text.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
                     <p>{{ form.submit() }}</p>
                 </form>
             </div>
