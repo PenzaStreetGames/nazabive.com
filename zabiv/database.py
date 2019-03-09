@@ -170,10 +170,12 @@ class UserModel:
 
     def set_avatar(self, user, resource):
         """изменение портрета пользователя"""
-        user = UserModel.get(user)
+        user = UserModel().get(user)
         resource = ResourceModel().get(resource)
+        print(user, resource)
         if resource.category == "image":
-            user.avatar = resource
+            user.avatar = resource.id
+        db.session.commit()
 
     def search(self, name="", surname=""):
         """поиск пользователя по имени и/или фамилии"""
@@ -611,9 +613,8 @@ class ResourceModel:
         resource = Resource(author=author, name=filename, category=category)
         db.session.add(resource)
         db.session.commit()
-        print(resource.id)
         file_id = resource.id
-        path = f"resources/{file_id}.{resolution}"
+        path = f"static/resources/{file_id}.{resolution}"
         file.save(path)
         resource.path = path
         db.session.commit()
@@ -629,10 +630,11 @@ class ResourceModel:
     def get_for(self, user, category=""):
         """список файлов пользователя"""
         if category:
-            resources = Resource.query.filter_by(
-                author=user, category=category).all()
+            resources = Resource.query.filter(
+                Resource.author == user and Resource.category == category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
+        print(resources)
         return resources
 
     def search(self, name, category=""):

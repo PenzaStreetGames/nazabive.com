@@ -14,7 +14,7 @@
         <div class="row">
             {%for img in photos%}
             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                <img src="/static/{{img.path}}" class="col-12 p-0 shadow" alt="photo" />
+                <img src="{{img.path}}" class="col-12 p-0 shadow" alt="photo" />
             </div>
             {%endfor%}
 
@@ -41,7 +41,6 @@
             <div class="modal-body">
                 <form action="" method="post" enctype="multipart/form-data">
                     {{ form.hidden_tag() }}
-                    <p>
                         {{ form.img.label }}<br>
                         {{ form.img(class_="form-control") }}<br>
                         {% for error in form.img.errors %}
@@ -49,16 +48,6 @@
                         {{ error }}
                     </div>
                     {% endfor %}
-                    </p>
-                    <p>
-                        {{ form.text.label }}<br>
-                        {{ form.text(class_="form-control") }}<br>
-                        {% for error in form.text.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
                     <p>{{ form.submit() }}</p>
                 </form>
             </div>

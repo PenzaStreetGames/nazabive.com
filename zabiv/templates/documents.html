@@ -2,7 +2,19 @@
 
 
 {% block content %}
+<form name="search" method="post">
+    <div class="row">
+        <div class="col-10 p-0">
+            <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                   placeholder="Введите имя друга"
+                   name="search">
+        </div>
+        <div class="col-2 p-0">
+            <button type="submit" class="btn btn-primary mb-2 col-12">Поиск</button>
 
+        </div>
+    </div>
+</form>
 <div class="row">
     {% for document in documents%}
     <div class="mt-1 ml-1 col-12">
@@ -48,7 +60,7 @@
                     {{ form.hidden_tag() }}
                     <p>
                         {{ form.document.label }}<br>
-                        {{ form.document(class_="form-control") }}<br>
+                        {{ form.document(class_="form-control pb-5") }}<br>
                         {% for error in form.document.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
