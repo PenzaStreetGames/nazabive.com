@@ -272,10 +272,44 @@ def documents():
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     if request.method == "POST":
-        search_words = get_form_data("search")
+        search_words = get_form_data("search")[0].split()[:2]
+        searched_friends = UserModel().search(name=search_words[0]) + \
+                            UserModel().search(surname=search_words[0])
+        if len(search_words) == 2:
+            searched_friends += UserModel().search(
+                name=search_words[0], surname=search_words[1]) + \
+                UserModel().search(
+                    name=search_words[1], surname=search_words[0])
+        searched_friends = list(set(searched_friends))
+        real_friends, searched_people = [], []
+        for friend in searched_friends:
+            if bool(FriendModel().get_relation(user_1=session["user_id"],
+                                               user_2=friend.id)):
+                real_friends += [friend]
+            else:
+                searched_people += [friend]
+        real_avatars = [ResourceModel().get(author.avatar)
+                        for author in real_friends]
+        other_avatars = [ResourceModel().get(author.avatar)
+                         for author in searched_people]
+        search = True
+    else:
+        friends_id = FriendModel().get_friends(session["user_id"])
+        real_friends = [UserModel().get(user) for user in friends_id]
+        searched_people = []
+        real_avatars = [ResourceModel().get(author.avatar)
+                        for author in real_friends]
+        other_avatars = []
+        search = False
     render_data = {
         "title": "Друзья",
-        "friends": FriendModel().get_friends(session["user_id"]),
+        "search": search,
+        "friend_number": len(real_friends),
+        "friends": real_friends,
+        "friends_avatars": real_avatars,
+        "people_number": len(searched_people),
+        "people": searched_people,
+        "other_avatars": other_avatars
 
     }
     return render_template("friends.html", **render_data)
