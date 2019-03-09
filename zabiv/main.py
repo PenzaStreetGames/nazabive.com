@@ -154,8 +154,12 @@ def photo():
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
-        photo_file = get_form_data("img")
-        comment = get_form_data("text")
+        file = request.files["img"]
+        filename = file.filename
+        resource = ResourceModel().create(name=filename, file=file,
+                                          author=session["user_id"])
+        ResourceLinkModel().create(resource=resource, place="user",
+                                   place_id=session["user_id"])
     render_data = {
         "title": "Фотографии",
         "photos": ResourceModel().get_for(session["user_id"], category="photo"),
@@ -170,8 +174,12 @@ def videos():
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
-        video_file = get_form_data("video")
-        comment = get_form_data("text")
+        file = request.files["video"]
+        filename = file.filename
+        resource = ResourceModel().create(name=filename, file=file,
+                                          author=session["user_id"])
+        ResourceLinkModel().create(resource=resource, place="user",
+                                   place_id=session["user_id"])
     render_data = {
         "title": "Видеозаписи",
         "videos": ResourceModel().get_for(session["user_id"], category="video"),
@@ -186,7 +194,12 @@ def audio():
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
-        audio_file = get_form_data("audio")
+        file = request.files["audio"]
+        filename = file.filename
+        resource = ResourceModel().create(name=filename, file=file,
+                                          author=session["user_id"])
+        ResourceLinkModel().create(resource=resource, place="user",
+                                   place_id=session["user_id"])
     render_data = {
         "title": "Аудиозаписи",
         "audios": ResourceModel().get_for(session["user_id"], category="audio"),
