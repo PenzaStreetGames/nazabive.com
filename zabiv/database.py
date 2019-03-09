@@ -164,10 +164,11 @@ class UserModel:
 
     def set_avatar(self, user, resource):
         """изменение портрета пользователя"""
-        user = UserModel.get(user)
+        user = UserModel().get(user)
         resource = ResourceModel().get(resource)
         if resource.category == "image":
-            user.avatar = resource
+            user.avatar = resource.id
+        db.session.commit()
 
     def search(self, name="", surname=""):
         """поиск пользователя по имени и/или фамилии"""
@@ -625,7 +626,6 @@ class ResourceModel:
                 Resource.author == user and Resource.category == category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
-        print(resources)
         return resources
 
     def search(self, name, category=""):

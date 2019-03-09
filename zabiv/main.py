@@ -8,8 +8,8 @@ from database import *
 
 
 class AddNewsForm(FlaskForm):
-    title = StringField('Заголовок новости', validators=[DataRequired()])
     content = TextAreaField('Текст новости', validators=[DataRequired()])
+    document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
@@ -21,13 +21,11 @@ class AuthForm(FlaskForm):
 
 class ImageForm(FlaskForm):
     img = FileField('Изображение', validators=[DataRequired()])
-    text = TextAreaField('Комментарий', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class VideoForm(FlaskForm):
     video = FileField('Изображение', validators=[DataRequired()])
-    text = TextAreaField('Комментарий', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
@@ -39,6 +37,14 @@ class AudioForm(FlaskForm):
 class DocumentForm(FlaskForm):
     document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
+
+class SearchForm(FlaskForm):
+    login = StringField('', validators=[DataRequired()])
+    submit = SubmitField('Найти')
+
+class AvaForm(FlaskForm):
+    document = FileField('', validators=[DataRequired()])
+    submit_ava = SubmitField('Сменить аватарку')
 
 
 class Config:
@@ -131,15 +137,23 @@ def reg():
 
 @app.route("/profile", methods=['GET', 'POST'])
 def profile():
+    user_model = UserModel()
     form = AddNewsForm()
+    user = user_model.get(session["user_id"])
+    avaform = AvaForm()
     post = PostModel()
-    if request.method == "POST":
-        if form.validate_on_submit():
-            content = get_form_data("content")[0]
-            print(type(content), content)
-            PostLinkModel().create_post(place="user",
-                                        place_id=session["user_id"],
-                                        content=content)
+    if request.form.get("submit_ava"):
+        print("123")
+        file = request.files.get("document")
+        res = ResourceModel().create(file.filename, file, session["user_id"])
+        link = ResourceLinkModel().create(res, "user", session["user_id"])
+        user_model.set_avatar(session["user_id"], res.id)
+    if form.validate_on_submit():
+        content = get_form_data("content")[0]
+        print(type(content), content)
+        PostLinkModel().create_post(place="user",
+                                    place_id=session["user_id"],
+                                    content=content)
     posts_id = PostLinkModel().get_news(place="user",
                                         place_id=session["user_id"])
     posts = [PostModel().get(post) for post in posts_id]
@@ -148,18 +162,20 @@ def profile():
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
              for post in posts]
+    ava = ResourceModel().get(user.avatar)
     render_data = {
         "title": f"{session['user_name']} {session['user_surname']}",
         "number": len(posts),
         "name": session["user_name"],
         "surname": session["user_surname"],
-        "avatar_profile": Config.DIR_IMG + "ava.jpg",
+        "avatar_profile": ava.path if ava else "",
         "news": posts,
         "authors": authors,
         "likes": likes,
         "liked": liked,
         "avatars": avatars,
-        "form": form
+        "form": form,
+        "ava": avaform,
 
     }
     return render_template("profile.html", **render_data)

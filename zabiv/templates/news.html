@@ -2,7 +2,19 @@
 
 
 {% block content %}
+<form name="search" method="post">
+    <div class="row">
+        <div class="col-9 p-0 ml-1">
+            <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                   placeholder="Введите имя друга"
+                   name="search">
+        </div>
+        <div class="col-2 p-0 ml-1">
+            <button type="submit" class="btn btn-primary mb-2 col-12">Поиск</button>
 
+        </div>
+    </div>
+</form>
 <div class="row">
     {% for i in range(number)%}
     <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
