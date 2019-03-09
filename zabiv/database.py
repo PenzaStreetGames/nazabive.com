@@ -425,7 +425,7 @@ class PostLinkModel:
         """публикация новости"""
         post = PostModel().create(author_type=place, author=place_id,
                                   content=content)
-        PostLinkModel().create(post=post.id, place="user", place_id=place_id)
+        PostLinkModel().create(post=post, place="user", place_id=place_id)
 
     def repost(self, id, place, place_id):
         """создание ссылки на новость"""

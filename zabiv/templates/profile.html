@@ -62,27 +62,25 @@
         </div>
 
     </div>
-    {% for post in posts %}
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
+    {% for i in range(number)%}
+    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <div class="row ml-0">
                 <div class="col-3">
-                    <img src="/{{post.author.avatar}}" alt="1" class="avatar shadow"/>
+                    <img src="{{avatars[i].path}}" alt="1" class="avatar shadow"/>
                 </div>
                 <div class="col-9">
-                    <p class="h4 mt-2">{{post.author.name}} {{post.author.surname}}</p>
+                    <p class="h4 mt-2">{{authors[i].name}} {{authors[i].surname}}</p>
                 </div>
             </div>
-
-
         </div>
-        <p class="p-3">{{post.content}}</p>
+        <p class="p-3">{{news[i].content}}</p>
         <div class="border-top mt-2 mb-2 ml-3">
             <div class="row">
                 <div class="p-2">
                     <a href="">
                         <img src="/static/images/like.png" alt="like" class="sign_post m-2"/>
-                        {{post.likes}}
+                        {{likes[i]}}
                     </a>
                 </div>
 
@@ -90,7 +88,7 @@
 
         </div>
     </div>
-    {% endfor %}
+    {%endfor%}
 </div>
 
 {%endblock%}

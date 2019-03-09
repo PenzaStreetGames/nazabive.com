@@ -150,16 +150,33 @@ def profile():
         link = ResourceLinkModel().create(res, "user", session["user_id"])
         user_model.set_avatar(session["user_id"], res.id)
     if form.validate_on_submit():
-        title, content = get_form_data("title", "content")
-        post.create(1, session["user_id"], content)
+        content = get_form_data("content")[0]
+        print(type(content), content)
+        PostLinkModel().create_post(place="user",
+                                    place_id=session["user_id"],
+                                    content=content)
+    posts_id = PostLinkModel().get_news(place="user",
+                                        place_id=session["user_id"])
+    posts = [PostModel().get(post) for post in posts_id]
+    authors = [UserModel().get(post.author) for post in posts]
+    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
+    liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
+             for post in posts]
+    ava = ResourceModel().get(user.avatar)
     render_data = {
-        "title": "Регистрация",
+        "title": f"{session['user_name']} {session['user_surname']}",
+        "number": len(posts),
         "name": session["user_name"],
         "surname": session["user_surname"],
-        "avatar_profile": ResourceModel().get(user.avatar).path,
-        "posts": [],
+        "avatar_profile": ava.path if ava else "",
+        "news": posts,
+        "authors": authors,
+        "likes": likes,
+        "liked": liked,
+        "avatars": avatars,
+        "form": form,
         "ava": avaform,
-        "form": form
 
     }
     return render_template("profile.html", **render_data)
