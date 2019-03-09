@@ -1,3 +1,7 @@
+.bg-dryandex {
+    background: #780700 !important;
+}
+
 .avatar {
     width: 50px;
     border-radius: 41px;
@@ -23,7 +27,7 @@ body {
 }
 
 .sign_post {
-    width: 20px;
+    width: 33px;
     height: 20px;
 }
 

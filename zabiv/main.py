@@ -136,6 +136,10 @@ def reg():
     return render_template("reg.html", **render_data)
 
 
+@app.route("/profile", methods=['GET', 'POST'])
+def profile_me():
+    return redirect(f"/profile/{session['user_id']}")
+
 @app.route("/profile/<id>", methods=['GET', 'POST'])
 def profile(id):
     user_model = UserModel()

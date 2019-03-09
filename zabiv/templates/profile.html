@@ -14,20 +14,23 @@
                 {%if session["user_id"] == user.id%}
                 <form action="" method="post" enctype="multipart/form-data">
                     <p>
-                        {{ ava.document.label }}<br>
-                        {{ ava.document(class_="form-control pb-5") }}<br>
+                        {{ ava.document.label }}
+                        {{ ava.document(class_="form-control pb-5") }}
                         {% for error in ava.document.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
                     </div>
                     {% endfor %}
                     </p>
-                    <p>{{ ava.submit_ava() }}</p>
+                    <p>{{ ava.submit_ava(class_="btn btn-dark col-12") }}</p>
                 </form>
                 {%endif%}
                 {%if session["user_id"] != user.id%}
                 <div class="col-12 mt-3">
-                    <button type="button" class="btn btn-danger">Добавить в друзья</button>
+                    <button type="button" class="btn btn-dark col-12">Добавить в друзья</button>
+                </div>
+                <div class="col-12 mt-1">
+                    <a href="/dialog/{{user.id}}" type="button" class="btn btn-dark col-12">Личное сообщение</a>
                 </div>
 
 
