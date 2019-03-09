@@ -7,8 +7,12 @@
     <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
         <div class="row">
             <div class="col-4 text-center m-4">
-                <img src="{{avatar_profile}}" alt="asd" class="col-12 ava p-0"/>
-                <form action="/profile" method="post" enctype="multipart/form-data">
+                <div class="col-12">
+                     <img src="/{{avatar_profile}}" alt="asd" class="col-12 ava p-0"/>
+                </div>
+
+                {%if session["user_id"] == user.id%}
+                <form action="" method="post" enctype="multipart/form-data">
                     <p>
                         {{ ava.document.label }}<br>
                         {{ ava.document(class_="form-control pb-5") }}<br>
@@ -20,6 +24,14 @@
                     </p>
                     <p>{{ ava.submit_ava() }}</p>
                 </form>
+                {%endif%}
+                {%if session["user_id"] != user.id%}
+                <div class="col-12 mt-3">
+                    <button type="button" class="btn btn-danger">Добавить в друзья</button>
+                </div>
+
+
+                {%endif%}
             </div>
             <div class="col-7 mt-4">
                 <h1 class="h1">{{surname}} {{name}}</h1>
@@ -67,7 +79,7 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <div class="row ml-0">
                 <div class="col-3">
-                    <img src="{{avatars[i].path}}" alt="1" class="avatar shadow"/>
+                    <img src="/{{avatars[i].path}}" alt="1" class="avatar shadow"/>
                 </div>
                 <div class="col-9">
                     <p class="h4 mt-2">{{authors[i].name}} {{authors[i].surname}}</p>

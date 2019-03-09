@@ -136,13 +136,15 @@ def reg():
     return render_template("reg.html", **render_data)
 
 
-@app.route("/profile", methods=['GET', 'POST'])
-def profile():
+@app.route("/profile/<id>", methods=['GET', 'POST'])
+def profile(id):
     user_model = UserModel()
     form = AddNewsForm()
-    user = user_model.get(session["user_id"])
+    user = user_model.get(id)
     avaform = AvaForm()
     post = PostModel()
+    title = f"{user.name} {user.surname}"
+
     if request.form.get("submit_ava"):
         print("123")
         file = request.files.get("document")
@@ -156,7 +158,7 @@ def profile():
                                     place_id=session["user_id"],
                                     content=content)
     posts_id = PostLinkModel().get_news(place="user",
-                                        place_id=session["user_id"])
+                                        place_id=user.id)
     posts = [PostModel().get(post) for post in posts_id]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
@@ -165,10 +167,10 @@ def profile():
              for post in posts]
     ava = ResourceModel().get(user.avatar)
     render_data = {
-        "title": f"{session['user_name']} {session['user_surname']}",
+        "title": title,
         "number": len(posts),
-        "name": session["user_name"],
-        "surname": session["user_surname"],
+        "name": user.name,
+        "surname": user.surname,
         "avatar_profile": ava.path if ava else "",
         "news": posts,
         "authors": authors,
@@ -177,6 +179,7 @@ def profile():
         "avatars": avatars,
         "form": form,
         "ava": avaform,
+        "user": user,
 
     }
     return render_template("profile.html", **render_data)
