@@ -162,7 +162,7 @@ def photo():
                                    place_id=session["user_id"])
     render_data = {
         "title": "Фотографии",
-        "photos": ResourceModel().get_for(session["user_id"], category="photo"),
+        "photos": ResourceModel().get_for(session["user_id"], category="image"),
         "form": ImageForm()
 
     }

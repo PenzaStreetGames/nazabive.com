@@ -629,8 +629,8 @@ class ResourceModel:
     def get_for(self, user, category=""):
         """список файлов пользователя"""
         if category:
-            resources = Resource.query.filter(
-                Resource.author == user and Resource.category == category).all()
+            resources = Resource.query.filter_by(
+                author=user, category=category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
         return resources
