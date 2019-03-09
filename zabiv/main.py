@@ -135,14 +135,30 @@ def profile():
     post = PostModel()
     if request.method == "POST":
         if form.validate_on_submit():
-            title, content = get_form_data("title", "content")
-            post.create(1, session["user_id"], content)
+            content = get_form_data("content")[0]
+            print(type(content), content)
+            PostLinkModel().create_post(place="user",
+                                        place_id=session["user_id"],
+                                        content=content)
+    posts_id = PostLinkModel().get_news(place="user",
+                                        place_id=session["user_id"])
+    posts = [PostModel().get(post) for post in posts_id]
+    authors = [UserModel().get(post.author) for post in posts]
+    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
+    liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
+             for post in posts]
     render_data = {
-        "title": "Регистрация",
+        "title": f"{session['user_name']} {session['user_surname']}",
+        "number": len(posts),
         "name": session["user_name"],
         "surname": session["user_surname"],
         "avatar_profile": Config.DIR_IMG + "ava.jpg",
-        "posts": [],
+        "news": posts,
+        "authors": authors,
+        "likes": likes,
+        "liked": liked,
+        "avatars": avatars,
         "form": form
 
     }
@@ -236,7 +252,7 @@ def friends():
         search_words = get_form_data("search")
     render_data = {
         "title": "Друзья",
-        "friends": [],
+        "friends": FriendModel().get_friends(session["user_id"]),
 
     }
     return render_template("friends.html", **render_data)
@@ -248,7 +264,7 @@ def dialogs():
         pass
     render_data = {
         "title": "Друзья",
-        "dialogs": [],
+        "dialogs": ChatModel().get_for(session["user_id"]),
 
     }
     return render_template("messages.html", **render_data)
@@ -260,7 +276,7 @@ def dialog(id):
         pass
     render_data = {
         "title": "Переписка",
-        "messages": [],
+        "messages": MessageModel().get_for(id),
 
     }
     return render_template("dialog.html", **render_data)
@@ -270,10 +286,21 @@ def dialog(id):
 def news():
     if request.method == "POST":
         pass
+    posts_id = PostLinkModel().get_news_tape(user=session["user_id"])
+    posts = [PostModel().get(post) for post in posts_id]
+    authors = [UserModel().get(post.author) for post in posts]
+    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
+    liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
+             for post in posts]
     render_data = {
+        "number": len(posts),
         "title": "Новости",
-        "news": [],
-
+        "news": posts,
+        "authors": authors,
+        "likes": likes,
+        "liked": liked,
+        "avatars": avatars
     }
     return render_template("news.html", **render_data)
 

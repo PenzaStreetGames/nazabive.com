@@ -381,7 +381,7 @@ class MessageModel:
         return message
 
     def get_for(self, chat):
-        """список сообщений группы"""
+        """список сообщений беседы"""
         messages = Message.query.filter(Message.chat == chat).all()
         return messages
 
@@ -423,7 +423,7 @@ class PostLinkModel:
         """публикация новости"""
         post = PostModel().create(author_type=place, author=place_id,
                                   content=content)
-        PostLinkModel().create(post=post.id, place="user", place_id=place_id)
+        PostLinkModel().create(post=post, place="user", place_id=place_id)
 
     def repost(self, id, place, place_id):
         """создание ссылки на новость"""
@@ -438,13 +438,14 @@ class PostLinkModel:
 
     def get_news_tape(self, user):
         """новостная лента пользователя"""
-        news = []
+        news = [PostLinkModel().get_news("user", user)]
         friends = FriendModel().get_friends(user)
         for friend in friends:
-            news += [PostLinkModel().get_news("user", friend)]
+            news += PostLinkModel().get_news("user", friend)
         groups = GroupModel().get_for(user)
         for group in groups:
-            news += [PostLinkModel().get_news("group", group)]
+            news += PostLinkModel().get_news("group", group)
+        print(news)
         news.sort(key=lambda post: post.date, reverse=True)
         return news
 
