@@ -26,8 +26,15 @@ function like(element) {
 		if (xmlhttp.readyState == 4) {
 			if(xmlhttp.status == 200) {
 				if (xmlhttp.responseText)
-				    element.children[0].src="/static/images/like.png";
-				    element.children[1].innerText = "asdf";
+				    data = element.children[0].src;
+                    if (data == SITENAME + "static/images/like.png") {
+                        element.children[0].src ="/static/images/like2.png";
+                        element.children[1].innerText = "0";
+                    }
+                    else {
+                        element.children[0].src ="/static/images/like.png";
+                        element.children[1].innerText = "1";
+                    }
 
 			}
 		}
