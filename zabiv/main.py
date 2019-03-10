@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField, BooleanField, SelectField
 from wtforms.validators import DataRequired
@@ -563,6 +563,28 @@ def send_message():
     text = request.form.get("message")
     message_model.create(user, chat, text)
     return "message sent"
+
+
+@app.route("/update_messages", methods=['POST'])
+def update_messages():
+    id = request.form.get("dialog")
+    messages = MessageModel().get_for(id)
+    messages.sort(key=lambda message: message.time)
+    authors_id = [message.sender for message in messages]
+    authors = [UserModel().get(user) for user in authors_id]
+    avatars_id = [user.avatar for user in authors]
+    avatars = [ResourceModel().get(avatar) for avatar in avatars_id]
+    render_data = {
+        "title": "Переписка",
+        "dialog_id": id,
+        "messages_text": [message.text for message in messages],
+        "messages_date": [message.time for message in messages],
+        "names": [author.name for author in authors],
+        "avatars": [avatar.path for avatar in avatars],
+        "message_number": len(messages)
+
+    }
+    return jsonify(render_data)
 
 
 @app.errorhandler(404)

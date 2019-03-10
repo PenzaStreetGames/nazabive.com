@@ -138,5 +138,13 @@
         crossorigin="anonymous"></script>
 <script src="/static/js/functions.js"></script>
 
+{% if page_dialog %}
+
+    <script>
+        setInterval("updateMessages({{ dialog_id }})", 1000);
+    </script>
+
+{% endif %}
+
 </body>
 </html>
