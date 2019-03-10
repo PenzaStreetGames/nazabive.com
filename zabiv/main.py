@@ -207,7 +207,7 @@ def profile(id):
     return render_template("profile.html", **render_data)
 
 
-@app.route("/group/<id>", methods=['GET', 'POST'])
+@app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
     user_model = UserModel()
     group_model = GroupModel()
@@ -455,6 +455,7 @@ def like():
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
     # Проверь, в друзьях ли и соверши противоположное действие. Затем верни НЕ пустой ответ.
+
     return "asdfasd"
 
 
