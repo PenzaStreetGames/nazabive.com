@@ -11,30 +11,20 @@
                         <img src="/{{ avatar_group }}" alt="asd" class="col-12 ava p-0"/>
                     </div>
 
-                    {% if session["user_id"] != user.id %}
-                        <div class="col-12 mt-3">
-                            <button type="button" class="btn text-white bg-dryandex col-12">
-                                {% if in_group %}
-                                    Покинуть группу
-                                {% else %}
-                                    Вступить в группу
-                                {% endif %}
-                            </button>
-                        </div>
-                        <div class="col-12 mt-1">
-                            <a href="/dialog/{{ user.id }}" class="btn text-white bg-dryandex col-12">Личное
-                                сообщение</a>
-                        </div>
+                    <div class="col-12 mt-3">
+                        <button type="button" class="btn text-white bg-dryandex col-12">
+                            {% if in_group %}
+                                Покинуть группу
+                            {% else %}
+                                Вступить в группу
+                            {% endif %}
+                        </button>
+                    </div>
 
-
-                    {% endif %}
                 </div>
                 <div class="col-7 mt-4">
                     <h1 class="h1">{{ group.name }}</h1>
-                    <p class="pb-3 small">Теперь WYSIWYG Web Builder имеет встроенный конструктор для мобильных
-                        веб-страниц.
-                        Это позволяет легко создавать мобильные версии страниц без необходимости внешнего программного
-                        обеспечения.</p>
+                    <p class="pb-3 small"></p>
 
                 </div>
             </div>

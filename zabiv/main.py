@@ -214,18 +214,15 @@ def profile(id):
 
 @app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
-    user_model = UserModel()
-    group_model = GroupModel()
     form = AddNewsForm()
-    group = group_model.get(id)
-    post = PostModel()
-    title = f"{group.name}"
+    group = GroupModel().get(id)
 
     if form.validate_on_submit():
         content = get_form_data("content")[0]
-        PostLinkModel().create_post(place="user",
-                                    place_id=session["user_id"],
+        PostLinkModel().create_post(place="group",
+                                    place_id=id,
                                     content=content)
+    user = UserModel().get(session["user_id"])
     posts_id = PostLinkModel().get_news(place="group",
                                         place_id=group.id)
     posts = [PostModel().get(post) for post in posts_id]
@@ -237,11 +234,13 @@ def group(id):
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
              for post in posts]
     ava = ResourceModel().get(group.avatar)
+    in_group = GroupMemberModel().get_by(user=user.id, group=id)
     render_data = {
-        "title": title,
+        "user": user,
+        "title": group.name,
         "number": len(posts),
         "name": group.name,
-        "avatar_group": ava.path if ava else "",
+        "avatar_group": ava.path,
         "news": posts,
         "authors": authors,
         "likes": likes,
@@ -249,9 +248,10 @@ def group(id):
         "avatars": avatars,
         "form": form,
         "group": group,
-        "in_group": True,  # В группе ли пользователь?
+        "in_group": in_group,  # В группе ли пользователь?
         "page_group": True,
-        "dates": dates
+        "dates": dates,
+        "session": session
 
     }
     return render_template("group.html", **render_data)
@@ -262,9 +262,17 @@ def groups():
     form_add_group = AddGroupForm()
     if request.method == "POST":
         search_words = get_form_data("search")
+    if form_add_group.validate_on_submit():
+        name = form_add_group.name.data
+        GroupModel().create(session["user_id"], name=name)
+    groups_id = GroupModel().get_for(session["user_id"])
+    groups_list = [GroupModel().get(group.group) for group in groups_id]
+    avatars = [ResourceModel().get(group.avatar) for group in groups_list]
     render_data = {
         "title": "Группы",
-        "groups": [],
+        "groups": groups_list,
+        "groups_number": len(groups_list),
+        "avatars": avatars,
         "form_add_group": form_add_group,
         "page_groups": True,
 
@@ -476,6 +484,7 @@ def news():
         "number": len(posts),
         "title": "Новости",
         "news": posts,
+        "posts_id": posts_id,
         "authors": authors,
         "likes": likes,
         "liked": liked,
@@ -488,25 +497,29 @@ def news():
 @app.route("/like", methods=['GET', 'POST'])
 def like():
     if request.method == "POST":
-        return "asdfasd"
+        user = session["user_id"]
+        post = request.form["post_id"]
+        like = LikeModel().get_by(user, post)
+        if not like:
+            LikeModel().create(author=user, post=post)
+        else:
+            LikeModel().delete(author=user, post=post)
+        return "liked"
 
     return redirect("/")
 
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
-    if request.method == "POST":
-        print("aaa")
-        user = UserModel().get(session["user_id"])
-        friend = UserModel().get(request.form["user"])
-        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
-        if is_friends:
-            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
-        else:
-            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
+    user = UserModel().get(session["user_id"])
+    friend = UserModel().get(request.form["user"])
+    is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+    if is_friends:
+        FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+    else:
+        FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
-        return "friendship changed"
-    return redirect("/")
+    return "friendship changed"
 
 
 @app.errorhandler(404)
