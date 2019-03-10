@@ -11,30 +11,20 @@
                         <img src="/{{ avatar_group }}" alt="asd" class="col-12 ava p-0"/>
                     </div>
 
-                    {% if session["user_id"] != user.id %}
-                        <div class="col-12 mt-3">
-                            <button type="button" class="btn text-white bg-dryandex col-12">
-                                {% if in_group %}
-                                    Покинуть группу
-                                {% else %}
-                                    Вступить в группу
-                                {% endif %}
-                            </button>
-                        </div>
-                        <div class="col-12 mt-1">
-                            <a href="/dialog/{{ user.id }}" class="btn text-white bg-dryandex col-12">Личное
-                                сообщение</a>
-                        </div>
+                    <div class="col-12 mt-3">
+                        <button type="button" class="btn text-white bg-dryandex col-12">
+                            {% if in_group %}
+                                Покинуть группу
+                            {% else %}
+                                Вступить в группу
+                            {% endif %}
+                        </button>
+                    </div>
 
-
-                    {% endif %}
                 </div>
                 <div class="col-7 mt-4">
                     <h1 class="h1">{{ group.name }}</h1>
-                    <p class="pb-3 small">Теперь WYSIWYG Web Builder имеет встроенный конструктор для мобильных
-                        веб-страниц.
-                        Это позволяет легко создавать мобильные версии страниц без необходимости внешнего программного
-                        обеспечения.</p>
+                    <p class="pb-3 small"></p>
 
                 </div>
             </div>
@@ -43,21 +33,22 @@
         </div>
     </div>
     <div class="row">
+        {% if in_group %}
         <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
             <div class="pt-2 text-center">
                 <p>Есть о чем рассказать? <a href="" data-toggle="modal" data-target="#newRow">Добавить запись</a></p>
             </div>
-
         </div>
+        {% endif %}
         {% for i in range(number) %}
             <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div class="row ml-0">
                         <div class="col-3">
-                            <img src="/{{ avatars[i].path }}" alt="1" class="avatar shadow"/>
+                            <img src="/{{ avatar_group }}" alt="1" class="avatar shadow"/>
                         </div>
                         <div class="col-9">
-                            <p class="h4 mt-2">{{ authors[i].name }} {{ authors[i].surname }}</p>
+                            <p class="h4 mt-2">{{ group.name }}</p>
                         </div>
                     </div>
                 </div>

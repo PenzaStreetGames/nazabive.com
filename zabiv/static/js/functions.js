@@ -71,5 +71,22 @@ function setFriend(element, user) {
     };
 }
 
+function sendMessage(dialog) {
+    message = document.querySelector("#message")
+    var xmlhttp = getXmlHttp();
+    xmlhttp.open('POST', SITENAME + 'send_message', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlhttp.send("message=" + encodeURIComponent(message.value) + "&" + "dialog=" + encodeURIComponent(dialog));
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4) {
+            if (xmlhttp.status == 200) {
+                if (xmlhttp.responseText) {
+                    message.value = "";
+                }
+            }
+        }
+    };
+}
+
 
 initBaseUI();

@@ -29,8 +29,8 @@
             <form>
                 <div class="form-group">
                     <label for="exampleFormControlTextarea1">Ваше сообщение</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                    <button type="submit" class="btn text-white bg-dryandex mt-1">Отправить сообщение</button>
+                    <textarea class="form-control" id="message" rows="3"></textarea>
+                    <button type="button" class="btn text-white bg-dryandex mt-1" onclick="sendMessage({{ dialog_id }})">Отправить сообщение</button>
 
                 </div>
             </form>

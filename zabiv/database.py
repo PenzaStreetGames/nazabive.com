@@ -22,7 +22,7 @@ class User(db.Model):
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=True)
+    avatar = db.Column(db.Integer, nullable=False, default=2)
 
 
 class Post(db.Model):
@@ -46,6 +46,7 @@ class Group(db.Model):
     """группы"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
+    avatar = db.Column(db.Integer, nullable=False, default=2)
 
 
 class Resource(db.Model):
@@ -439,7 +440,7 @@ class PostLinkModel:
         """публикация новости"""
         post = PostModel().create(author_type=place, author=place_id,
                                   content=content)
-        PostLinkModel().create(post=post, place="user", place_id=place_id)
+        PostLinkModel().create(post=post, place=place, place_id=place_id)
 
     def repost(self, id, place, place_id):
         """создание ссылки на новость"""
@@ -449,7 +450,6 @@ class PostLinkModel:
         """список новостей"""
         post_links = PostLink.query.filter(PostLink.place == place,
                                            PostLink.place_id == place_id).all()
-        print(post_links)
         posts = [post.post for post in post_links]
         return posts
 
@@ -461,7 +461,7 @@ class PostLinkModel:
             news += PostLinkModel().get_news("user", friend.friend)
         groups = GroupModel().get_for(user)
         for group in groups:
-            news += PostLinkModel().get_news("group", group.id)
+            news += [PostLinkModel().get_news("group", group)]
         return news
 
 
@@ -571,9 +571,10 @@ class GroupModel:
         db.session.add(group)
         db.session.commit()
         for user in users:
-            member = Group(user=user, group=group.id)
+            member = GroupMember(user=user, group=group.id)
             db.session.add(member)
         db.session.commit()
+        return group
 
     def get(self, id):
         """получение группы по id"""
