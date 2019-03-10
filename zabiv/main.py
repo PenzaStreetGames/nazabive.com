@@ -10,7 +10,6 @@ from database import *
 class AddNewsForm(FlaskForm):
     content = TextAreaField('Текст новости', validators=[DataRequired()])
     document = FileField('Документ', validators=[DataRequired()])
-
     submit = SubmitField('Добавить')
 
 
@@ -52,6 +51,10 @@ class AddGroupForm(FlaskForm):
 
 class AddDialogGroupForm(FlaskForm):
     name = StringField('Название: ', validators=[DataRequired()])
+    submit = SubmitField('Создать')
+
+
+class AddUserToDialogForm(FlaskForm):
     friends = SelectField('Выберете участников', choices=[  # cast val as int
         (0, '1'),
         (1, '2'),
@@ -180,12 +183,16 @@ def profile(id):
     posts_id = PostLinkModel().get_news(place="user",
                                         place_id=user.id)
     posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
              for post in posts]
     ava = ResourceModel().get(user.avatar)
+    is_friends = bool(FriendModel().get_relation(user_1=session["user_id"],
+                                                 user_2=user.id))
     render_data = {
         "title": title,
         "number": len(posts),
@@ -201,31 +208,34 @@ def profile(id):
         "form": form,
         "ava": avaform,
         "user": user,
-        "is_friend": True, # Друзья ли они?
+        "is_friend": is_friends,  # Друзья ли они?
         "page_profile": True,
+        "dates": dates
 
     }
     return render_template("profile.html", **render_data)
 
 
-@app.route("/group/<id>", methods=['GET', 'POST'])
+@app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
     user_model = UserModel()
     group_model = GroupModel()
     form = AddNewsForm()
+    form_add_user = AddUserToDialogForm()
     group = group_model.get(id)
     post = PostModel()
     title = f"{group.name}"
 
     if form.validate_on_submit():
         content = get_form_data("content")[0]
-        print(type(content), content)
         PostLinkModel().create_post(place="user",
                                     place_id=session["user_id"],
                                     content=content)
     posts_id = PostLinkModel().get_news(place="group",
                                         place_id=group.id)
     posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
@@ -243,9 +253,11 @@ def group(id):
         "liked": liked,
         "avatars": avatars,
         "form": form,
+        "form_add_user": form_add_user,
         "group": group,
         "in_group": True,  # В группе ли пользователь?
         "page_group": True,
+        "dates": dates
 
     }
     return render_template("group.html", **render_data)
@@ -350,10 +362,44 @@ def documents():
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     if request.method == "POST":
-        search_words = get_form_data("search")
+        search_words = get_form_data("search")[0].split()[:2]
+        searched_friends = UserModel().search(name=search_words[0]) + \
+                           UserModel().search(surname=search_words[0])
+        if len(search_words) == 2:
+            searched_friends += UserModel().search(
+                name=search_words[0], surname=search_words[1]) + \
+                                UserModel().search(
+                                    name=search_words[1], surname=search_words[0])
+        searched_friends = list(set(searched_friends))
+        real_friends, searched_people = [], []
+        for friend in searched_friends:
+            if bool(FriendModel().get_relation(user_1=session["user_id"],
+                                               user_2=friend.id)):
+                real_friends += [friend]
+            else:
+                searched_people += [friend]
+        real_avatars = [ResourceModel().get(author.avatar)
+                        for author in real_friends]
+        other_avatars = [ResourceModel().get(author.avatar)
+                         for author in searched_people]
+        search = True
+    else:
+        friends_id = FriendModel().get_friends(session["user_id"])
+        real_friends = [UserModel().get(user.friend) for user in friends_id]
+        searched_people = []
+        real_avatars = [ResourceModel().get(author.avatar)
+                        for author in real_friends]
+        other_avatars = []
+        search = False
     render_data = {
         "title": "Друзья",
-        "friends": [],
+        "search": search,
+        "friend_number": len(real_friends),
+        "friends": real_friends,
+        "friends_avatars": real_avatars,
+        "people_number": len(searched_people),
+        "people": searched_people,
+        "other_avatars": other_avatars
 
     }
     return render_template("friends.html", **render_data)
@@ -364,12 +410,22 @@ def dialogs():
     form_add_group = AddDialogGroupForm()
     if request.method == "POST":
         pass
+    chats_id = ChatModel().get_for(session["user_id"])
+    chats = [ChatModel().get(member.chat) for member in chats_id]
+    messages = [MessageModel().get_latest(chat.id) for chat in chats]
+    authors_id = [message.sender if message else None for message in messages]
+    authors = [UserModel().get(author) if author else None
+               for author in authors_id]
+    avatars = [ResourceModel().get(author.avatar) if author else None
+               for author in authors]
     render_data = {
         "title": "Друзья",
+        "chats_number": len(chats),
+        "chats": chats,
+        "avatars": avatars,
+        "messages": messages,
         "form_add_group": form_add_group,
         "page_dialogs": True,
-        "friends": friends,
-        "dialogs": [],
 
     }
     return render_template("messages.html", **render_data)
@@ -377,24 +433,63 @@ def dialogs():
 
 @app.route("/dialog/<int:id>", methods=['GET', 'POST'])
 def dialog(id):
+    form_add_user = AddUserToDialogForm()
     if request.method == "POST":
         pass
+    messages = MessageModel().get_for(id)
+    messages.sort(key=lambda message: message.time)
+    authors_id = [message.sender for message in messages]
+    authors = [UserModel().get(user) for user in authors_id]
+    avatars_id = [user.avatar for user in authors]
+    avatars = [ResourceModel().get(avatar) for avatar in avatars_id]
     render_data = {
         "title": "Переписка",
-        "messages": [],
+        "messages": messages,
+        "authors": authors,
+        "avatars": avatars_id,
+        "form_add_user": form_add_user,
+        "page_dialog": True,
+        "message_number": len(messages)
 
     }
     return render_template("dialog.html", **render_data)
+
+
+@app.route("/get_dialog/<int:id>", methods=["GET", "POST"])
+def get_dialog(id):
+    if request.method == "POST":
+        pass
+    user = UserModel().get(id)
+    dialog = ChatModel().exists_dialog(session["user_id"], user.id)
+    if not dialog:
+        dialog = ChatModel().create(
+            session["user_id"], id,
+            name=f"{session['user_name']} & {user.name}", private=True)
+    return redirect(f"/dialog/{dialog.id}")
 
 
 @app.route("/news/", methods=['GET', 'POST'])
 def news():
     if request.method == "POST":
         pass
+    posts_id = PostLinkModel().get_news_tape(user=session["user_id"])
+    posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
+    authors = [UserModel().get(post.author) for post in posts]
+    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
+    liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
+             for post in posts]
     render_data = {
+        "number": len(posts),
         "title": "Новости",
-        "news": [],
-
+        "news": posts,
+        "authors": authors,
+        "likes": likes,
+        "liked": liked,
+        "avatars": avatars,
+        "dates": dates
     }
     return render_template("news.html", **render_data)
 
@@ -409,8 +504,18 @@ def like():
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
-    # Проверь, в друзьях ли и соверши противоположное действие. Затем верни НЕ пустой ответ.
-    return "asdfasd"
+    if request.method == "POST":
+        print("aaa")
+        user = UserModel().get(session["user_id"])
+        friend = UserModel().get(request.form["user"])
+        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+        if is_friends:
+            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+        else:
+            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
+
+        return "friendship changed"
+    return redirect("/")
 
 
 @app.errorhandler(404)

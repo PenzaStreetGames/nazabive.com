@@ -51,6 +51,8 @@
                     <a class="list-group-item list-group-item-action"
                        href="/photo">Фотографии</a>
                     <a class="list-group-item list-group-item-action"
+                       href="/audio">Музыка</a>
+                    <a class="list-group-item list-group-item-action"
                        href="/videos">Видеозаписи</a>
                     <a class="list-group-item list-group-item-action"
                        href="/documents">Документы</a>
@@ -95,6 +97,8 @@
                            href="/videos/{{ user.id }}">Видеозаписи</a>
                         <a class="list-group-item list-group-item-action"
                            href="/documents/{{ user.id }}">Документы</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="#" data-toggle="modal" data-target="#addUserGroup">Добавить участников</a>
 
                     </div>
                 {% endif %}
@@ -103,6 +107,14 @@
                     <div class="list-group" id="list-tab" role="tablist">
                         <a class="list-group-item list-group-item-action"
                            href="#" data-toggle="modal" data-target="#addDialgGroup">Создать беседу</a>
+
+                    </div>
+                {% endif %}
+                {% if page_dialog %}
+                    <div class="h4 text-dark text-center mt-3 mb-3">Диалоги</div>
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action"
+                           href="#" data-toggle="modal" data-target="#addUserGroup">Добавить участников</a>
 
                     </div>
                 {% endif %}

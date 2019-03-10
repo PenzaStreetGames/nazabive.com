@@ -31,6 +31,7 @@ class Post(db.Model):
     author_type = db.Column(db.Integer, nullable=False)
     author = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class Chat(db.Model):
@@ -54,14 +55,6 @@ class Resource(db.Model):
     path = db.Column(db.String(120), unique=True, nullable=True)
     name = db.Column(db.String(120), nullable=False)
     author = db.Column(db.Integer, nullable=False)
-
-
-"""class Avatars(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    avatar_id = db.Column(db.Integer,
-                          db.ForeignKey("resources.id"),
-                          nullable=False)
-    resource = db.relationship("User", backref=db.backref("Avatar", lazy=True))"""
 
 
 class Message(db.Model):
@@ -115,6 +108,7 @@ class PostLink(db.Model):
     post = db.Column(db.Integer, nullable=False)
     place = db.Column(db.String(20), nullable=False)
     place_id = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class ResourceLink(db.Model):
@@ -172,7 +166,6 @@ class UserModel:
         """изменение портрета пользователя"""
         user = UserModel().get(user)
         resource = ResourceModel().get(resource)
-        print(user, resource)
         if resource.category == "image":
             user.avatar = resource.id
         db.session.commit()
@@ -184,7 +177,7 @@ class UserModel:
         elif not name and surname:
             users = User.query.filter(User.surname.like(f"%{surname}%")).all()
         elif name and surname:
-            users = User.query.filter(User.name.like(f"%{name}%") and
+            users = User.query.filter(User.name.like(f"%{name}%"),
                                       User.surname.like(f"%{surname}%")).all()
         else:
             users = User.query.all()
@@ -216,7 +209,7 @@ class FriendRequestModel:
     def get(self, sender, receiver):
         """найти заявку по отправителю и получателю"""
         request = FriendRequest.query.filter(
-            FriendRequest.sender == sender and
+            FriendRequest.sender == sender,
             FriendRequest.receiver == receiver).first()
         return request
 
@@ -275,7 +268,7 @@ class FriendModel:
     def get_relation(self, user_1, user_2):
         """найти дружбу по двум друзьям"""
         request = Friend.query.filter(
-            Friend.base_user == user_1 and
+            Friend.base_user == user_1,
             Friend.friend == user_2).first()
         return request
 
@@ -286,11 +279,11 @@ class FriendModel:
 
     def delete_friend(self, user_1, user_2):
         """удалить друга"""
-        relation_1 = FriendModel.get_relation(user_1, user_2)
-        relation_2 = FriendModel.get_relation(user_2, user_1)
+        relation_1 = FriendModel().get_relation(user_1, user_2)
+        relation_2 = FriendModel().get_relation(user_2, user_1)
         try:
-            Friend.query.filter(Friend.id == relation_1).delete()
-            Friend.query.filter(Friend.id == relation_2).delete()
+            Friend.query.filter(Friend.id == relation_1.id).delete()
+            Friend.query.filter(Friend.id == relation_2.id).delete()
             db.session.commit()
         except Exception as error:
             print(error)
@@ -312,7 +305,7 @@ class ChatMemberModel:
 
     def get(self, user, chat):
         """получение участника группы по пользователю и группе"""
-        member = ChatMember.query.filter(ChatMember.user == user and
+        member = ChatMember.query.filter(ChatMember.user == user,
                                          ChatMember.chat == chat).first()
         if not member:
             return "Not found"
@@ -325,7 +318,7 @@ class ChatMemberModel:
         db.session.commit()
 
     def delete(self, id):
-        """удаление участника группы"""
+        """удаление участника беседы"""
         try:
             ChatMember.query.filter(ChatMember.id == id).delete()
             db.session.commit()
@@ -348,6 +341,7 @@ class ChatModel:
             member = ChatMember(user=user, chat=chat.id)
             db.session.add(member)
         db.session.commit()
+        return chat
 
     def get(self, id):
         """получение чата по id"""
@@ -355,6 +349,18 @@ class ChatModel:
         if not chat:
             return None
         return chat
+
+    def exists_dialog(self, user_1, user_2):
+        """существует ли диалог между пользователями"""
+        chats_1 = set([member.chat for member in ChatModel().get_for(user_1)])
+        chats_2 = set([member.chat for member in ChatModel().get_for(user_2)])
+        common_chats = list(chats_1.intersection(chats_2))
+        chats = [ChatModel().get(chat) for chat in common_chats]
+        dialog = list(filter(lambda chat: chat.private, chats))
+        if dialog:
+            return dialog[0]
+        else:
+            return None
 
     def get_for(self, user):
         """получение чатов пользователя"""
@@ -383,7 +389,7 @@ class MessageModel:
         return message
 
     def get_for(self, chat):
-        """список сообщений группы"""
+        """список сообщений беседы"""
         messages = Message.query.filter(Message.chat == chat).all()
         return messages
 
@@ -407,9 +413,17 @@ class MessageModel:
     def new_messages(self, user, chat):
         """список непрочитанных сообщений"""
         user = UserModel().get(user)
-        messages = Message.query.filter(Message.chat == chat and
+        messages = Message.query.filter(Message.chat == chat,
                                         Message.time > user.time).all()
         return messages
+
+    def get_latest(self, chat):
+        """получение последнего сообщение беседы"""
+        message = Message.query.filter(Message.chat == chat).group_by(
+            Message.time).all()
+        if message:
+            return message[-1]
+        return None
 
 
 class PostLinkModel:
@@ -433,21 +447,21 @@ class PostLinkModel:
 
     def get_news(self, place, place_id):
         """список новостей"""
-        post_links = PostLink.query.filter(PostLink.place == place and
+        post_links = PostLink.query.filter(PostLink.place == place,
                                            PostLink.place_id == place_id).all()
+        print(post_links)
         posts = [post.post for post in post_links]
         return posts
 
     def get_news_tape(self, user):
         """новостная лента пользователя"""
-        news = []
+        news = PostLinkModel().get_news("user", user)
         friends = FriendModel().get_friends(user)
         for friend in friends:
-            news += [PostLinkModel().get_news("user", friend)]
+            news += PostLinkModel().get_news("user", friend.friend)
         groups = GroupModel().get_for(user)
         for group in groups:
-            news += [PostLinkModel().get_news("group", group)]
-        news.sort(key=lambda post: post.date, reverse=True)
+            news += PostLinkModel().get_news("group", group.id)
         return news
 
 
@@ -494,7 +508,7 @@ class LikeModel:
 
     def get_by(self, author, post):
         """получение оценки по автору и новости"""
-        like = Like.query.filter(Like.author == author and
+        like = Like.query.filter(Like.author == author,
                                  Like.post == post).first()
         if not like:
             return
@@ -508,7 +522,7 @@ class LikeModel:
     def delete(self, author, post):
         """удаление оценки по автору и новости"""
         try:
-            like = Like.query.filter(Like.author == author and
+            like = Like.query.filter(Like.author == author,
                                      Like.post == post).delete()
             db.session.commit()
         except Exception as error:
@@ -526,7 +540,7 @@ class GroupMemberModel:
 
     def get_by(self, user, group):
         """получение участника группы по пользователю и группе"""
-        member = GroupMember.query.filter(GroupMember.user == user and
+        member = GroupMember.query.filter(GroupMember.user == user,
                                           GroupMember.group == group).first()
         if not member:
             return
@@ -631,17 +645,16 @@ class ResourceModel:
         """список файлов пользователя"""
         if category:
             resources = Resource.query.filter(
-                Resource.author == user and Resource.category == category).all()
+                Resource.author == user, Resource.category == category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
-        print(resources)
         return resources
 
     def search(self, name, category=""):
         """поиск файла по имени"""
         if category:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%") and
+                Resource.name.like(f"%name%"),
                 Resource.category == category).all()
         else:
             resources = Resource.query.filter(
@@ -662,15 +675,13 @@ class ResourceLinkModel:
     def get_for(self, place, place_id):
         """список ресурсов этого объекта"""
         resources = ResourceLink.query.filter(
-            ResourceLink.place == place and
+            ResourceLink.place == place,
             ResourceLink.place_id == place_id).all()
         return resources
 
 
 if __name__ == '__main__':
 
-    # первичная инициализация, уже проведена
-    # users_initialization()
     db.create_all()
     print(UserModel().get_all())
     UserModel().add("User", "123", "Паша", "Соломатин")

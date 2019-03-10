@@ -2,31 +2,57 @@
 
 
 {% block content %}
-    <form name="search" method="post">
-        <div class="row">
-            <div class="col-10 p-0">
-                <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
-                       placeholder="Введите имя друга"
-                       name="search">
-            </div>
-            <div class="col-2 p-0">
-                <button type="submit" class="btn text-white bg-dryandex mb-2 col-12">Поиск</button>
-
-            </div>
-        </div>
-    </form>
-
-
+<form name="search" method="post">
     <div class="row">
-        {% for friend in friends %}
-            <div class="shadow bg-white col-2 p-0 m-1 text-center">
-                <div class="m-3">
-                    <img src="{{ friend.avatar }}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
-                    <a href="" class="h6 text-dark">{{ friend.name }} {{ friend.surname }}</a>
-                </div>
-            </div>
-        {% endfor %}
-
-
+        <div class="col-9 p-0 ml-1">
+            <input type="text" class="form-control col-12 p-0" id="text"
+                   placeholder="Введите имя друга"
+                   name="search">
+        </div>
+        <div class="col-2 p-0 ml-1">
+            <button type="submit" class="btn btn-primary mb-2 col-12">Поиск</button>
+        </div>
     </div>
-{% endblock %}
+</form>
+
+{% if not search %}
+<h3>Друзья</h3>
+<div class="row">
+    {% for i in range(friend_number) %}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{friends_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/profile/{{friends[i].id}}" class="h6 text-dark">{{friends[i].name}} {{friends[i].surname}}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<h3>Друзья</h3>
+<div class="row">
+    {% for i in range(friend_number) %}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{friends_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/profile/{{friends[i].id}}" class="h6 text-dark">{{friends[i].name}} {{friends[i].surname}}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<h3>Возможные друзья</h3>
+<div class="row">
+    {% for i in range(people_number)%}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{other_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/profile/{{people[i].id}}" class="h6 text-dark">{{people[i].name}} {{people[i].surname}}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+
+
+{%endblock%}

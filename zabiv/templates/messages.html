@@ -3,28 +3,34 @@
 
 {% block content %}
 
-    {% for dialog in dialogs %}
+    {% for i in range(chats_number) %}
         <div class="row">
             <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
                 <div class="pt-3 pb-2">
                     <div class="row ml-0">
                         <div class="col-1">
-                            <img src="{{ dialog.avatar }}" alt="1" class="avatar"/>
+                            <img src="/static/images/messages.png" alt="1" class="avatar"/>
                         </div>
                         <div class="col-9 p-0">
-                            <p class="h6">Dashboard</p>
+                            <a href="/dialog/{{chats[i].id}}"><p class="h6">{{chats[i].name}}</p></a>
+                            {% if messages[i] %}
                             <div class="row ml-1">
                                 <div class="col-1 p-0 text-center">
-                                    <img src="{{ dialog.user.avatar }}" alt="1" class="avatar_min"/>
+                                    <img src="{{avatars[i]}}" alt="1" class="avatar_min"/>
                                 </div>
                                 <div class="col-11 p-0">
-                                    <p class="small mt-1">{{ dialog.user.text }} </p>
+                                    <p class="small mt-1">{{messages[i].content}} </p>
+                                </div>
+                                <div class="col-2">
+                                    {{ messages[i].time }}
                                 </div>
                             </div>
+                            {% else %}
+                             <div class="col-11 p-0">
+                                 <p class="small mt-1">Пока здесь пусто </p>
+                             </div>
+                            {% endif %}
 
-                        </div>
-                        <div class="col-2">
-                            {{ dialog.time }}
                         </div>
                     </div>
                 </div>
@@ -60,15 +66,7 @@
                                 </div>
                             {% endfor %}
                         </p>
-                        <p>
-                            {{ form_add_group.friends.label }}<br>
-                            {{ form_add_group.friends }}<br>
-                            {% for error in form_add_group.friends.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
+
                         <p>{{ form_add_group.submit() }}</p>
                     </form>
                 </div>

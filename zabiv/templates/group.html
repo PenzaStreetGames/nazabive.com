@@ -85,7 +85,35 @@
 
 
 {% block modals %}
+    <div class="modal fade" id="addUserGroup" tabindex="-1" role="dialog" aria-labelledby="addUserGroup"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление участников</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {{ form_add_user.hidden_tag() }}
+                        <p>
+                            {{ form_add_user.friends.label }}<br>
+                            {{ form_add_user.friends }}<br>
+                            {% for error in form_add_user.friends.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>{{ form_add_user.submit() }}</p>
+                    </form>
+                </div>
 
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
