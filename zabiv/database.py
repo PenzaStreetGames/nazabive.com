@@ -462,7 +462,6 @@ class PostLinkModel:
         groups = GroupModel().get_for(user)
         for group in groups:
             news += [PostLinkModel().get_news("group", group)]
-        news.sort(key=lambda post: post.date, reverse=True)
         return news
 
 

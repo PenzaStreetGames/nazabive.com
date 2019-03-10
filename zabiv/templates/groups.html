@@ -5,7 +5,7 @@
     <form name="search" method="post">
         <div class="row">
             <div class="col-10 p-0">
-                <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                <input type="text" class="form-control col-12 p-0" id="email"
                        placeholder="Введите название группы"
                        name="search">
             </div>
@@ -16,18 +16,45 @@
         </div>
     </form>
 
-    <div class="row">
-        {% for i in range(groups_number) %}
-            <div class="shadow bg-white col-2 p-0 m-1 text-center">
-                <div class="m-3">
-                    <img src="/{{ avatars[i].path }}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
-                    <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{ groups[i].name }}</a>
-                </div>
-            </div>
-        {% endfor %}
-
-
+{% if not search %}
+<h3>Группы</h3>
+<div class="row">
+    {% for i in range(groups_number) %}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/group/{{user_groups[i].id}}" class="h6 text-dark">{{user_groups[i].name}}</a>
+        </div>
     </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<h3>Группы</h3>
+<div class="row">
+    {% for i in range(groups_number) %}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{user_groups[i].name}}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<h3>Найденые группы</h3>
+<div class="row">
+    {% for i in range(other_number)%}
+    <div class="shadow bg-white col-2 p-0 m-1 text-center">
+        <div class="m-3">
+            <img src="/{{other_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/group/{{other_groups[i].id}}" class="h6 text-dark">{{other_groups[i].name}}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+
 {% endblock %}
 
 {% block modals %}

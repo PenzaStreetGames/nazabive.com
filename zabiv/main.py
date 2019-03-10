@@ -233,13 +233,12 @@ def group(id):
     posts = [PostModel().get(post) for post in posts_id]
     posts.sort(key=lambda post: post.date, reverse=True)
     dates = [str(post.date)[:19] for post in posts]
-    authors = [UserModel().get(post.author) for post in posts]
-    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    # avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
              for post in posts]
     ava = ResourceModel().get(group.avatar)
-    in_group = GroupMemberModel().get_by(user=user.id, group=id)
+    in_group = bool(GroupMemberModel().get_by(user=user.id, group=id))
     render_data = {
         "user": user,
         "title": group.name,
@@ -247,14 +246,14 @@ def group(id):
         "name": group.name,
         "avatar_group": ava.path,
         "news": posts,
-        "authors": authors,
+        # "authors": authors,
         "likes": likes,
         "liked": liked,
-        "avatars": avatars,
+        # "avatars": avatars,
         "form": form,
         "form_add_user": form_add_user,
         "group": group,
-        "in_group": in_group,  # В группе ли пользователь?
+        "in_group": in_group,
         "page_group": True,
         "dates": dates,
         "session": session
@@ -268,6 +267,28 @@ def groups():
     form_add_group = AddGroupForm()
     if request.method == "POST":
         search_words = get_form_data("search")
+        searched_groups = GroupModel().search(name=search_words[0])
+        user_groups, other_groups = [], []
+        for group in searched_groups:
+            if GroupMemberModel().get_by(user=session["user_id"],
+                                         group=group.id):
+                user_groups += [group]
+            else:
+                other_groups += [group]
+        group_avatars = [ResourceModel().get(group.avatar)
+                        for group in user_groups]
+        other_avatars = [ResourceModel().get(group.avatar)
+                         for group in other_groups]
+        search = True
+    else:
+        groups_id = [member.chat for member in
+                      GroupModel().get_for(session["user_id"])]
+        user_groups = [GroupModel().get(group.id) for group in groups_id]
+        other_groups = []
+        real_avatars = [ResourceModel().get(group.avatar)
+                        for group in user_groups]
+        other_avatars = []
+        search = False
     if form_add_group.validate_on_submit():
         name = form_add_group.name.data
         GroupModel().create(session["user_id"], name=name)
@@ -276,9 +297,13 @@ def groups():
     avatars = [ResourceModel().get(group.avatar) for group in groups_list]
     render_data = {
         "title": "Группы",
+        "search": search,
         "groups": groups_list,
         "groups_number": len(groups_list),
-        "avatars": avatars,
+        "group_avatars": avatars,
+        "other_number": len(other_groups),
+        "other_groups": other_groups,
+        "other_avatars": other_avatars,
         "form_add_group": form_add_group,
         "page_groups": True,
 
@@ -531,6 +556,13 @@ def setfriend():
             FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
         return "friendship changed"
+    return redirect("/")
+
+
+@app.route("/send_message", methods=["POST"])
+def send_message():
+    if request.method == "POST":
+        return "message sent"
     return redirect("/")
 
 

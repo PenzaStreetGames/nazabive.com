@@ -33,21 +33,22 @@
         </div>
     </div>
     <div class="row">
+        {% if in_group %}
         <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
             <div class="pt-2 text-center">
                 <p>Есть о чем рассказать? <a href="" data-toggle="modal" data-target="#newRow">Добавить запись</a></p>
             </div>
-
         </div>
+        {% endif %}
         {% for i in range(number) %}
             <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <div class="row ml-0">
                         <div class="col-3">
-                            <img src="/{{ avatars[i].path }}" alt="1" class="avatar shadow"/>
+                            <img src="/{{ avatar_group }}" alt="1" class="avatar shadow"/>
                         </div>
                         <div class="col-9">
-                            <p class="h4 mt-2">{{ authors[i].name }} {{ authors[i].surname }}</p>
+                            <p class="h4 mt-2">{{ group.name }}</p>
                         </div>
                     </div>
                 </div>
