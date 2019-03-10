@@ -363,6 +363,13 @@ def news():
     return render_template("news.html", **render_data)
 
 
+@app.route("/like", methods=['GET', 'POST'])
+def like():
+    if request.method == "POST":
+        return "asdfasd"
+
+    return redirect("/")
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404

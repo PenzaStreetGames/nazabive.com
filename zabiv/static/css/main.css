@@ -34,3 +34,7 @@ body {
 .ava {
     border: 3px solid #343A40;
 }
+
+.pointer {
+    cursor: pointer;
+}
