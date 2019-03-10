@@ -177,7 +177,7 @@ class UserModel:
         elif not name and surname:
             users = User.query.filter(User.surname.like(f"%{surname}%")).all()
         elif name and surname:
-            users = User.query.filter(User.name.like(f"%{name}%") and
+            users = User.query.filter(User.name.like(f"%{name}%"),
                                       User.surname.like(f"%{surname}%")).all()
         else:
             users = User.query.all()
@@ -209,7 +209,7 @@ class FriendRequestModel:
     def get(self, sender, receiver):
         """найти заявку по отправителю и получателю"""
         request = FriendRequest.query.filter(
-            FriendRequest.sender == sender and
+            FriendRequest.sender == sender,
             FriendRequest.receiver == receiver).first()
         return request
 
@@ -268,7 +268,7 @@ class FriendModel:
     def get_relation(self, user_1, user_2):
         """найти дружбу по двум друзьям"""
         request = Friend.query.filter(
-            Friend.base_user == user_1 and
+            Friend.base_user == user_1,
             Friend.friend == user_2).first()
         return request
 
@@ -305,7 +305,7 @@ class ChatMemberModel:
 
     def get(self, user, chat):
         """получение участника группы по пользователю и группе"""
-        member = ChatMember.query.filter(ChatMember.user == user and
+        member = ChatMember.query.filter(ChatMember.user == user,
                                          ChatMember.chat == chat).first()
         if not member:
             return "Not found"
@@ -400,7 +400,7 @@ class MessageModel:
     def new_messages(self, user, chat):
         """список непрочитанных сообщений"""
         user = UserModel().get(user)
-        messages = Message.query.filter(Message.chat == chat and
+        messages = Message.query.filter(Message.chat == chat,
                                         Message.time > user.time).all()
         return messages
 
@@ -426,8 +426,9 @@ class PostLinkModel:
 
     def get_news(self, place, place_id):
         """список новостей"""
-        post_links = PostLink.query.filter(PostLink.place == place and
+        post_links = PostLink.query.filter(PostLink.place == place,
                                            PostLink.place_id == place_id).all()
+        print(post_links)
         posts = [post.post for post in post_links]
         return posts
 
@@ -486,7 +487,7 @@ class LikeModel:
 
     def get_by(self, author, post):
         """получение оценки по автору и новости"""
-        like = Like.query.filter(Like.author == author and
+        like = Like.query.filter(Like.author == author,
                                  Like.post == post).first()
         if not like:
             return
@@ -500,7 +501,7 @@ class LikeModel:
     def delete(self, author, post):
         """удаление оценки по автору и новости"""
         try:
-            like = Like.query.filter(Like.author == author and
+            like = Like.query.filter(Like.author == author,
                                      Like.post == post).delete()
             db.session.commit()
         except Exception as error:
@@ -518,7 +519,7 @@ class GroupMemberModel:
 
     def get_by(self, user, group):
         """получение участника группы по пользователю и группе"""
-        member = GroupMember.query.filter(GroupMember.user == user and
+        member = GroupMember.query.filter(GroupMember.user == user,
                                           GroupMember.group == group).first()
         if not member:
             return
@@ -623,7 +624,7 @@ class ResourceModel:
         """список файлов пользователя"""
         if category:
             resources = Resource.query.filter(
-                Resource.author == user and Resource.category == category).all()
+                Resource.author == user, Resource.category == category).all()
         else:
             resources = Resource.query.filter(Resource.author == user).all()
         return resources
@@ -632,7 +633,7 @@ class ResourceModel:
         """поиск файла по имени"""
         if category:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%") and
+                Resource.name.like(f"%name%"),
                 Resource.category == category).all()
         else:
             resources = Resource.query.filter(
@@ -653,7 +654,7 @@ class ResourceLinkModel:
     def get_for(self, place, place_id):
         """список ресурсов этого объекта"""
         resources = ResourceLink.query.filter(
-            ResourceLink.place == place and
+            ResourceLink.place == place,
             ResourceLink.place_id == place_id).all()
         return resources
 

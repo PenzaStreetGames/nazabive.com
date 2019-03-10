@@ -149,19 +149,13 @@ def profile(id):
     title = f"{user.name} {user.surname}"
 
     if request.form.get("submit_ava"):
-        print("123")
         file = request.files.get("document")
         res = ResourceModel().create(file.filename, file, session["user_id"])
         link = ResourceLinkModel().create(res, "user", session["user_id"])
         user_model.set_avatar(session["user_id"], res.id)
-    if form.validate_on_submit():
-        content = get_form_data("content")[0]
-        print(type(content), content)
-        PostLinkModel().create_post(place="user",
-                                    place_id=session["user_id"],
-                                    content=content)
     posts_id = PostLinkModel().get_news(place="user",
-                                        place_id=user.id)
+                                        place_id=id)
+    print(posts_id)
     posts = [PostModel().get(post) for post in posts_id]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
@@ -180,9 +174,9 @@ def profile(id):
         "likes": likes,
         "liked": liked,
         "avatars": avatars,
-        "form": form,
-        "ava": avaform,
         "user": user,
+        "form": form,
+        "ava": avaform
 
     }
     return render_template("profile.html", **render_data)
@@ -363,10 +357,11 @@ def news():
     return render_template("news.html", **render_data)
 
 
-@app.route("/like", methods=['GET', 'POST'])
-def like():
+@app.route("/like/<int:post>", methods=['GET', 'POST'])
+def like(post):
     if request.method == "POST":
-        return "asdfasd"
+        print(post)
+        return post
 
     return redirect("/")
 
