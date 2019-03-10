@@ -179,12 +179,16 @@ def profile(id):
     posts_id = PostLinkModel().get_news(place="user",
                                         place_id=user.id)
     posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
              for post in posts]
     ava = ResourceModel().get(user.avatar)
+    is_friends = bool(FriendModel().get_relation(user_1=session["user_id"],
+                                                 user_2=user.id))
     render_data = {
         "title": title,
         "number": len(posts),
@@ -200,8 +204,9 @@ def profile(id):
         "form": form,
         "ava": avaform,
         "user": user,
-        "is_friend": True, # Друзья ли они?
+        "is_friend": is_friends, # Друзья ли они?
         "page_profile": True,
+        "dates": dates
 
     }
     return render_template("profile.html", **render_data)
@@ -218,13 +223,14 @@ def group(id):
 
     if form.validate_on_submit():
         content = get_form_data("content")[0]
-        print(type(content), content)
         PostLinkModel().create_post(place="user",
                                     place_id=session["user_id"],
                                     content=content)
     posts_id = PostLinkModel().get_news(place="group",
                                         place_id=group.id)
     posts = [PostModel().get(post) for post in posts_id]
+    posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
@@ -245,6 +251,7 @@ def group(id):
         "group": group,
         "in_group": True,  # В группе ли пользователь?
         "page_group": True,
+        "dates": dates
 
     }
     return render_template("group.html", **render_data)
@@ -427,6 +434,7 @@ def news():
     posts_id = PostLinkModel().get_news_tape(user=session["user_id"])
     posts = [PostModel().get(post) for post in posts_id]
     posts.sort(key=lambda post: post.date, reverse=True)
+    dates = [str(post.date)[:19] for post in posts]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
@@ -439,7 +447,8 @@ def news():
         "authors": authors,
         "likes": likes,
         "liked": liked,
-        "avatars": avatars
+        "avatars": avatars,
+        "dates": dates
     }
     return render_template("news.html", **render_data)
 
@@ -455,8 +464,18 @@ def like():
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
     # Проверь, в друзьях ли и соверши противоположное действие. Затем верни НЕ пустой ответ.
+    if request.method == "POST":
+        print("aaa")
+        user = UserModel().get(session["user_id"])
+        friend = UserModel().get(request.form.user)
+        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+        if is_friends:
+            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+        else:
+            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
-    return "asdfasd"
+        return "friendship changed"
+    return redirect("/")
 
 
 @app.errorhandler(404)
