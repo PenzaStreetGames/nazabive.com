@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <title>{{title}}</title>
+    <title>{{ title }}</title>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -40,12 +40,13 @@
     </div>
 </nav>
 <div class="container">
-    <h1 class="h1 center mt-4 text-center">{{title_content}}</h1>
+    <h1 class="h1 center mt-4 text-center">{{ title_content }}</h1>
 </div>
 <div class="container mt-5">
     <div class="row">
         <div class="col-3">
-            <div class="shadow bg-white">
+            <div class="shadow bg-white" id="left_content">
+                <div class="h4 text-dark text-center pt-2 mb-3">Моя страница</div>
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action"
                        href="/news">Новости</a>
@@ -66,14 +67,63 @@
                     <a class="list-group-item list-group-item-action"
                        href="/groups">Группы</a>
                 </div>
+                {% if page_profile and user.id != session["user_id"] %}
+                    <div class="h4 text-dark text-center mt-3 mb-3">{{ user.name }} {{ user.surname }}</div>
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action"
+                           href="/profile/{{ user.id }}">Профиль</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/friends/{{ user.id }}">Друзья</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/photo/{{ user.id }}">Фотографии</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/videos/{{ user.id }}">Видеозаписи</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/documents/{{ user.id }}">Документы</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/groups/{{ user.id }}">Группы</a>
+                    </div>
+                {% endif %}
+                {% if page_groups %}
+                    <div class="h4 text-dark text-center mt-3 mb-3">Группы</div>
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action"
+                           href="#" data-toggle="modal" data-target="#addGroup">Создать группу</a>
+
+                    </div>
+                {% endif %}
+                {% if page_group %}
+                    <div class="h4 text-dark text-center mt-3 mb-3">{{ group.name }}</div>
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action"
+                           href="/profile/{{ user.id }}">Стена группы</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/friends/{{ user.id }}">Участники</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/photo/{{ user.id }}">Фотографии</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/videos/{{ user.id }}">Видеозаписи</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/documents/{{ user.id }}">Документы</a>
+
+                    </div>
+                {% endif %}
+                {% if page_dialogs %}
+                    <div class="h4 text-dark text-center mt-3 mb-3">Диалоги</div>
+                    <div class="list-group" id="list-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action"
+                           href="#" data-toggle="modal" data-target="#addDialgGroup">Создать беседу</a>
+
+                    </div>
+                {% endif %}
             </div>
         </div>
-        <div class="col-9 pl-0">
+        <div class="col-9 pl-0" id="main_content">
             {% block content %}{% endblock %}
         </div>
     </div>
 </div>
-{%block modals%}{%endblock%}
+{% block modals %}{% endblock %}
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, redirect
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField, BooleanField, SelectField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -38,9 +38,25 @@ class DocumentForm(FlaskForm):
     document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
+
 class SearchForm(FlaskForm):
     login = StringField('', validators=[DataRequired()])
     submit = SubmitField('Найти')
+
+
+class AddGroupForm(FlaskForm):
+    name = StringField('Название: ', validators=[DataRequired()])
+    submit = SubmitField('Создать')
+
+
+class AddDialogGroupForm(FlaskForm):
+    name = StringField('Название: ', validators=[DataRequired()])
+    friends = SelectField('Выберете участников', choices=[  # cast val as int
+        (0, '1'),
+        (1, '2'),
+    ])
+    submit = SubmitField('Создать')
+
 
 class AvaForm(FlaskForm):
     document = FileField('', validators=[DataRequired()])
@@ -139,6 +155,7 @@ def reg():
 def profile_me():
     return redirect(f"/profile/{session['user_id']}")
 
+
 @app.route("/profile/<id>", methods=['GET', 'POST'])
 def profile(id):
     user_model = UserModel()
@@ -153,9 +170,14 @@ def profile(id):
         res = ResourceModel().create(file.filename, file, session["user_id"])
         link = ResourceLinkModel().create(res, "user", session["user_id"])
         user_model.set_avatar(session["user_id"], res.id)
+    if form.validate_on_submit():
+        content = get_form_data("content")[0]
+        print(type(content), content)
+        PostLinkModel().create_post(place="user",
+                                    place_id=session["user_id"],
+                                    content=content)
     posts_id = PostLinkModel().get_news(place="user",
-                                        place_id=id)
-    print(posts_id)
+                                        place_id=user.id)
     posts = [PostModel().get(post) for post in posts_id]
     authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
@@ -171,15 +193,76 @@ def profile(id):
         "avatar_profile": ava.path if ava else "",
         "news": posts,
         "authors": authors,
+        "posts_id": posts_id,
         "likes": likes,
         "liked": liked,
         "avatars": avatars,
-        "user": user,
         "form": form,
-        "ava": avaform
+        "ava": avaform,
+        "user": user,
+        "is_friend": True, # Друзья ли они?
+        "page_profile": True,
 
     }
     return render_template("profile.html", **render_data)
+
+
+@app.route("/group/<id>", methods=['GET', 'POST'])
+def group(id):
+    user_model = UserModel()
+    group_model = GroupModel()
+    form = AddNewsForm()
+    group = group_model.get(id)
+    post = PostModel()
+    title = f"{group.name}"
+
+    if form.validate_on_submit():
+        content = get_form_data("content")[0]
+        print(type(content), content)
+        PostLinkModel().create_post(place="user",
+                                    place_id=session["user_id"],
+                                    content=content)
+    posts_id = PostLinkModel().get_news(place="group",
+                                        place_id=group.id)
+    posts = [PostModel().get(post) for post in posts_id]
+    authors = [UserModel().get(post.author) for post in posts]
+    avatars = [ResourceModel().get(author.avatar) for author in authors]
+    likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
+    liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
+             for post in posts]
+    ava = ResourceModel().get(group.avatar)
+    render_data = {
+        "title": title,
+        "number": len(posts),
+        "name": group.name,
+        "avatar_group": ava.path if ava else "",
+        "news": posts,
+        "authors": authors,
+        "likes": likes,
+        "liked": liked,
+        "avatars": avatars,
+        "form": form,
+        "group": group,
+        "in_group": True,  # В группе ли пользователь?
+        "page_group": True,
+
+    }
+    return render_template("group.html", **render_data)
+
+
+@app.route("/groups", methods=['GET', 'POST'])
+def groups():
+    form_add_group = AddGroupForm()
+    if request.method == "POST":
+        search_words = get_form_data("search")
+    render_data = {
+        "title": "Группы",
+        "groups": [],
+        "form_add_group": form_add_group,
+        "page_groups": True,
+
+    }
+    return render_template("groups.html", **render_data)
 
 
 @app.route("/photo", methods=['GET', 'POST'])
@@ -311,10 +394,14 @@ def friends():
 
 @app.route("/dialogs", methods=['GET', 'POST'])
 def dialogs():
+    form_add_group = AddDialogGroupForm()
     if request.method == "POST":
         pass
     render_data = {
         "title": "Друзья",
+        "form_add_group": form_add_group,
+        "page_dialogs": True,
+        "friends": friends,
         "dialogs": ChatModel().get_for(session["user_id"]),
 
     }
@@ -357,13 +444,19 @@ def news():
     return render_template("news.html", **render_data)
 
 
-@app.route("/like/<int:post>", methods=['GET', 'POST'])
-def like(post):
+@app.route("/like", methods=['GET', 'POST'])
+def like():
     if request.method == "POST":
-        print(post)
-        return post
+        return "asdfasd"
 
     return redirect("/")
+
+
+@app.route("/setfriend", methods=['POST'])
+def setfriend():
+    # Проверь, в друзьях ли и соверши противоположное действие. Затем верни НЕ пустой ответ.
+    return "asdfasd"
+
 
 @app.errorhandler(404)
 def page_not_found(e):

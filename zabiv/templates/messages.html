@@ -3,35 +3,77 @@
 
 {% block content %}
 
-{% for dialog in dialogs%}
-<div class="row">
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
-        <div class="pt-3 pb-2">
-            <div class="row ml-0">
-                <div class="col-1">
-                    <img src="{{dialog.avatar}}" alt="1" class="avatar"/>
-                </div>
-                <div class="col-9 p-0">
-                    <p class="h6">Dashboard</p>
-                    <div class="row ml-1">
-                        <div class="col-1 p-0 text-center">
-                            <img src="{{dialog.user.avatar}}" alt="1" class="avatar_min"/>
+    {% for dialog in dialogs %}
+        <div class="row">
+            <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+                <div class="pt-3 pb-2">
+                    <div class="row ml-0">
+                        <div class="col-1">
+                            <img src="{{ dialog.avatar }}" alt="1" class="avatar"/>
                         </div>
-                        <div class="col-11 p-0">
-                            <p class="small mt-1">{{dialog.user.text}} </p>
+                        <div class="col-9 p-0">
+                            <p class="h6">Dashboard</p>
+                            <div class="row ml-1">
+                                <div class="col-1 p-0 text-center">
+                                    <img src="{{ dialog.user.avatar }}" alt="1" class="avatar_min"/>
+                                </div>
+                                <div class="col-11 p-0">
+                                    <p class="small mt-1">{{ dialog.user.text }} </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-2">
+                            {{ dialog.time }}
                         </div>
                     </div>
+                </div>
 
-                </div>
-                <div class="col-2">
-                    {{dialog.time}}
-                </div>
+
             </div>
         </div>
+    {% endfor %}
 
+{% endblock %}
 
+{% block modals %}
+
+    <div class="modal fade" id="addDialgGroup" tabindex="-1" role="dialog" aria-labelledby="addDialgGroup"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление беседы</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {{ form_add_group.hidden_tag() }}
+                        <p>
+                            {{ form_add_group.name.label }}<br>
+                            {{ form_add_group.name(class_="form-control") }}<br>
+                            {% for error in form_add_group.name.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>
+                            {{ form_add_group.friends.label }}<br>
+                            {{ form_add_group.friends }}<br>
+                            {% for error in form_add_group.friends.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>{{ form_add_group.submit() }}</p>
+                    </form>
+                </div>
+
+            </div>
+        </div>
     </div>
-</div>
-{%endfor%}
-
-{%endblock%}
+{% endblock %}

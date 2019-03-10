@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-10 p-0">
                 <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
-                       placeholder="Введите имя друга"
+                       placeholder="Введите название группы"
                        name="search">
             </div>
             <div class="col-2 p-0">
@@ -15,56 +15,47 @@
             </div>
         </div>
     </form>
+
     <div class="row">
-        <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
-            <div class="pt-2 text-center">
-                <p><a href="" data-toggle="modal" data-target="#newRow">Добавить видео</a></p>
+        {% for group in groups %}
+            <div class="shadow bg-white col-2 p-0 m-1 text-center">
+                <div class="m-3">
+                    <img src="{{ group.avatar }}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+                    <a href="" class="h6 text-dark">{{ group.name }}</a>
+                </div>
             </div>
+        {% endfor %}
 
-        </div>
-        <div class="mt-1 ml-1 col-12">
-            <div class="row">
-                {% for video in videos %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                        <video controls class="col-12 p-0 shadow">
-                            <source src="{{ video.link }}" type="video/mp4">
-                        </video>
-                    </div>
-                {% endfor %}
 
-            </div>
-        </div>
     </div>
-
 {% endblock %}
-
 
 {% block modals %}
 
-    <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+    <div class="modal fade" id="addGroup" tabindex="-1" role="dialog" aria-labelledby="newRow"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавление видеозаписи</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление группы</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form action="" method="post" enctype="multipart/form-data">
-                        {{ form.hidden_tag() }}
+                        {{ form_add_group.hidden_tag() }}
                         <p>
-                            {{ form.video.label }}<br>
-                            {{ form.video(class_="form-control") }}<br>
-                            {% for error in form.video.errors %}
+                            {{ form_add_group.name.label }}<br>
+                            {{ form_add_group.name(class_="form-control") }}<br>
+                            {% for error in form_add_group.name.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                             {% endfor %}
                         </p>
 
-                        <p>{{ form.submit() }}</p>
+                        <p>{{ form_add_group.submit() }}</p>
                     </form>
                 </div>
 
