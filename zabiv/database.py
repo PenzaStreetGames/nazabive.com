@@ -279,11 +279,11 @@ class FriendModel:
 
     def delete_friend(self, user_1, user_2):
         """удалить друга"""
-        relation_1 = FriendModel.get_relation(user_1, user_2)
-        relation_2 = FriendModel.get_relation(user_2, user_1)
+        relation_1 = FriendModel().get_relation(user_1, user_2)
+        relation_2 = FriendModel().get_relation(user_2, user_1)
         try:
-            Friend.query.filter(Friend.id == relation_1).delete()
-            Friend.query.filter(Friend.id == relation_2).delete()
+            Friend.query.filter(Friend.id == relation_1.id).delete()
+            Friend.query.filter(Friend.id == relation_2.id).delete()
             db.session.commit()
         except Exception as error:
             print(error)
@@ -318,7 +318,7 @@ class ChatMemberModel:
         db.session.commit()
 
     def delete(self, id):
-        """удаление участника группы"""
+        """удаление участника беседы"""
         try:
             ChatMember.query.filter(ChatMember.id == id).delete()
             db.session.commit()
@@ -341,6 +341,7 @@ class ChatModel:
             member = ChatMember(user=user, chat=chat.id)
             db.session.add(member)
         db.session.commit()
+        return chat
 
     def get(self, id):
         """получение чата по id"""
@@ -348,6 +349,18 @@ class ChatModel:
         if not chat:
             return None
         return chat
+
+    def exists_dialog(self, user_1, user_2):
+        """существует ли диалог между пользователями"""
+        chats_1 = set([member.chat for member in ChatModel().get_for(user_1)])
+        chats_2 = set([member.chat for member in ChatModel().get_for(user_2)])
+        common_chats = list(chats_1.intersection(chats_2))
+        chats = [ChatModel().get(chat) for chat in common_chats]
+        dialog = list(filter(lambda chat: chat.private, chats))
+        if dialog:
+            return dialog[0]
+        else:
+            return None
 
     def get_for(self, user):
         """получение чатов пользователя"""
@@ -404,6 +417,14 @@ class MessageModel:
                                         Message.time > user.time).all()
         return messages
 
+    def get_latest(self, chat):
+        """получение последнего сообщение беседы"""
+        message = Message.query.filter(Message.chat == chat).group_by(
+            Message.time).all()
+        if message:
+            return message[-1]
+        return None
+
 
 class PostLinkModel:
 
@@ -437,10 +458,10 @@ class PostLinkModel:
         news = PostLinkModel().get_news("user", user)
         friends = FriendModel().get_friends(user)
         for friend in friends:
-            news += PostLinkModel().get_news("user", friend)
+            news += PostLinkModel().get_news("user", friend.friend)
         groups = GroupModel().get_for(user)
         for group in groups:
-            news += PostLinkModel().get_news("group", group)
+            news += PostLinkModel().get_news("group", group.id)
         return news
 
 
