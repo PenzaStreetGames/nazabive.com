@@ -208,7 +208,7 @@ def profile(id):
         "form": form,
         "ava": avaform,
         "user": user,
-        "is_friend": is_friends, # Друзья ли они?
+        "is_friend": is_friends,  # Друзья ли они?
         "page_profile": True,
         "dates": dates
 
@@ -276,13 +276,13 @@ def groups():
             else:
                 other_groups += [group]
         group_avatars = [ResourceModel().get(group.avatar)
-                        for group in user_groups]
+                         for group in user_groups]
         other_avatars = [ResourceModel().get(group.avatar)
                          for group in other_groups]
         search = True
     else:
         groups_id = [member.chat for member in
-                      GroupModel().get_for(session["user_id"])]
+                     GroupModel().get_for(session["user_id"])]
         user_groups = [GroupModel().get(group.id) for group in groups_id]
         other_groups = []
         real_avatars = [ResourceModel().get(group.avatar)
@@ -397,12 +397,12 @@ def friends():
     if request.method == "POST":
         search_words = get_form_data("search")[0].split()[:2]
         searched_friends = UserModel().search(name=search_words[0]) + \
-                            UserModel().search(surname=search_words[0])
+                           UserModel().search(surname=search_words[0])
         if len(search_words) == 2:
             searched_friends += UserModel().search(
                 name=search_words[0], surname=search_words[1]) + \
-                UserModel().search(
-                    name=search_words[1], surname=search_words[0])
+                                UserModel().search(
+                                    name=search_words[1], surname=search_words[0])
         searched_friends = list(set(searched_friends))
         real_friends, searched_people = [], []
         for friend in searched_friends:
@@ -480,7 +480,7 @@ def dialog(id):
         "dialog_id": id,
         "messages": messages,
         "authors": authors,
-        "avatars": avatars_id,
+        "avatars": avatars,
         "form_add_user": form_add_user,
         "page_dialog": True,
         "message_number": len(messages)
@@ -529,42 +529,40 @@ def news():
     return render_template("news.html", **render_data)
 
 
-@app.route("/like", methods=['GET', 'POST'])
+@app.route("/like", methods=['POST'])
 def like():
-    if request.method == "POST":
-        user = session["user_id"]
-        post = request.form["post_id"]
-        like = LikeModel().get_by(user, post)
-        if not like:
-            LikeModel().create(author=user, post=post)
-        else:
-            LikeModel().delete(author=user, post=post)
-        return "liked"
-
-    return redirect("/")
+    user = session["user_id"]
+    post = request.form["post_id"]
+    like = LikeModel().get_by(user, post)
+    if not like:
+        LikeModel().create(author=user, post=post)
+    else:
+        LikeModel().delete(author=user, post=post)
+    return "liked"
 
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
-    if request.method == "POST":
-        print("aaa")
-        user = UserModel().get(session["user_id"])
-        friend = UserModel().get(request.form["user"])
-        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
-        if is_friends:
-            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
-        else:
-            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
+    print("aaa")
+    user = UserModel().get(session["user_id"])
+    friend = UserModel().get(request.form["user"])
+    is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+    if is_friends:
+        FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+    else:
+        FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
-        return "friendship changed"
-    return redirect("/")
+    return "friendship changed"
 
 
 @app.route("/send_message", methods=["POST"])
 def send_message():
-    if request.method == "POST":
-        return "message sent"
-    return redirect("/")
+    message_model = MessageModel()
+    user = session["user_id"]
+    chat = request.form.get("dialog")
+    text = request.form.get("message")
+    message_model.create(user, chat, text)
+    return "message sent"
 
 
 @app.errorhandler(404)

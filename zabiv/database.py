@@ -378,7 +378,7 @@ class MessageModel:
 
     def create(self, user, chat, text):
         """отправка сообщения"""
-        message = Message(user=user, chat=chat, text=text)
+        message = Message(sender=user, chat=chat, text=text)
         db.session.add(message)
         db.session.commit()
 
