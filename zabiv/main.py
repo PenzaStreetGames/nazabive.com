@@ -191,7 +191,7 @@ def profile(id):
         "number": len(posts),
         "name": user.name,
         "surname": user.surname,
-        "avatar_profile": ava.path if ava else "",
+        "avatar_profile": ava.path if ava else "static/images/no_photo.png",
         "news": posts,
         "authors": authors,
         "posts_id": posts_id,
