@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField, BooleanField, SelectField
 from wtforms.validators import DataRequired
@@ -477,9 +477,10 @@ def dialog(id):
     avatars = [ResourceModel().get(avatar) for avatar in avatars_id]
     render_data = {
         "title": "Переписка",
+        "dialog_id": id,
         "messages": messages,
         "authors": authors,
-        "avatars": avatars_id,
+        "avatars": avatars,
         "form_add_user": form_add_user,
         "page_dialog": True,
         "message_number": len(messages)
@@ -528,42 +529,62 @@ def news():
     return render_template("news.html", **render_data)
 
 
-@app.route("/like", methods=['GET', 'POST'])
+@app.route("/like", methods=['POST'])
 def like():
-    if request.method == "POST":
-        user = session["user_id"]
-        post = request.form["post_id"]
-        like = LikeModel().get_by(user, post)
-        if not like:
-            LikeModel().create(author=user, post=post)
-        else:
-            LikeModel().delete(author=user, post=post)
-        return "liked"
-
-    return redirect("/")
+    user = session["user_id"]
+    post = request.form["post_id"]
+    like = LikeModel().get_by(user, post)
+    if not like:
+        LikeModel().create(author=user, post=post)
+    else:
+        LikeModel().delete(author=user, post=post)
+    return "liked"
 
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
-    if request.method == "POST":
-        print("aaa")
-        user = UserModel().get(session["user_id"])
-        friend = UserModel().get(request.form["user"])
-        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
-        if is_friends:
-            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
-        else:
-            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
+    print("aaa")
+    user = UserModel().get(session["user_id"])
+    friend = UserModel().get(request.form["user"])
+    is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+    if is_friends:
+        FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+    else:
+        FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
-        return "friendship changed"
-    return redirect("/")
+    return "friendship changed"
 
 
 @app.route("/send_message", methods=["POST"])
 def send_message():
-    if request.method == "POST":
-        return "message sent"
-    return redirect("/")
+    message_model = MessageModel()
+    user = session["user_id"]
+    chat = request.form.get("dialog")
+    text = request.form.get("message")
+    message_model.create(user, chat, text)
+    return "message sent"
+
+
+@app.route("/update_messages", methods=['POST'])
+def update_messages():
+    id = request.form.get("dialog")
+    messages = MessageModel().get_for(id)
+    messages.sort(key=lambda message: message.time)
+    authors_id = [message.sender for message in messages]
+    authors = [UserModel().get(user) for user in authors_id]
+    avatars_id = [user.avatar for user in authors]
+    avatars = [ResourceModel().get(avatar) for avatar in avatars_id]
+    render_data = {
+        "title": "Переписка",
+        "dialog_id": id,
+        "messages_text": [message.text for message in messages],
+        "messages_date": [message.time for message in messages],
+        "names": [author.name for author in authors],
+        "avatars": [avatar.path for avatar in avatars],
+        "message_number": len(messages)
+
+    }
+    return jsonify(render_data)
 
 
 @app.errorhandler(404)

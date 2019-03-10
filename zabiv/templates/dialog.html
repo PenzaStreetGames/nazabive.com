@@ -4,7 +4,7 @@
 {% block content %}
 
     <div class="row">
-        <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12" id="dialog-area">
             {% for i in range(message_number) %}
                 <div class="pt-3 pb-2">
                     <div class="row ml-0">
@@ -14,7 +14,7 @@
                         <div class="col-9 p-0">
                             <p class="h6">{{ authors[i].name }}</p>
                             <div class="row ml-1">
-                                <p class="small mt-1">{{ messages[i].content }} </p>
+                                <p class="small mt-1">{{ messages[i].text }} </p>
                             </div>
 
                         </div>
@@ -29,8 +29,8 @@
             <form>
                 <div class="form-group">
                     <label for="exampleFormControlTextarea1">Ваше сообщение</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                    <button type="submit" class="btn text-white bg-dryandex mt-1">Отправить сообщение</button>
+                    <textarea class="form-control" id="message" rows="3"></textarea>
+                    <button type="button" class="btn text-white bg-dryandex mt-1" onclick="sendMessage({{ dialog_id }})">Отправить сообщение</button>
 
                 </div>
             </form>
