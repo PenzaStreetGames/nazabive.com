@@ -51,6 +51,10 @@ class AddGroupForm(FlaskForm):
 
 class AddDialogGroupForm(FlaskForm):
     name = StringField('Название: ', validators=[DataRequired()])
+    submit = SubmitField('Создать')
+
+
+class AddUserToDialogForm(FlaskForm):
     friends = SelectField('Выберете участников', choices=[  # cast val as int
         (0, '1'),
         (1, '2'),
@@ -216,6 +220,7 @@ def profile(id):
 def group(id):
     form = AddNewsForm()
     group = GroupModel().get(id)
+    form_add_user = AddUserToDialogForm()
 
     if form.validate_on_submit():
         content = get_form_data("content")[0]
@@ -247,6 +252,7 @@ def group(id):
         "liked": liked,
         "avatars": avatars,
         "form": form,
+        "form_add_user": form_add_user,
         "group": group,
         "in_group": in_group,  # В группе ли пользователь?
         "page_group": True,
@@ -435,6 +441,7 @@ def dialogs():
 
 @app.route("/dialog/<int:id>", methods=['GET', 'POST'])
 def dialog(id):
+    form_add_user = AddUserToDialogForm()
     if request.method == "POST":
         pass
     messages = MessageModel().get_for(id)
@@ -448,6 +455,8 @@ def dialog(id):
         "messages": messages,
         "authors": authors,
         "avatars": avatars_id,
+        "form_add_user": form_add_user,
+        "page_dialog": True,
         "message_number": len(messages)
 
     }
@@ -511,15 +520,18 @@ def like():
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
-    user = UserModel().get(session["user_id"])
-    friend = UserModel().get(request.form["user"])
-    is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
-    if is_friends:
-        FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
-    else:
-        FriendModel().create_connection(user_1=user.id, user_2=friend.id)
+    if request.method == "POST":
+        print("aaa")
+        user = UserModel().get(session["user_id"])
+        friend = UserModel().get(request.form["user"])
+        is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)
+        if is_friends:
+            FriendModel().delete_friend(user_1=user.id, user_2=friend.id)
+        else:
+            FriendModel().create_connection(user_1=user.id, user_2=friend.id)
 
-    return "friendship changed"
+        return "friendship changed"
+    return redirect("/")
 
 
 @app.errorhandler(404)

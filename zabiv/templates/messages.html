@@ -66,15 +66,7 @@
                                 </div>
                             {% endfor %}
                         </p>
-                        <p>
-                            {{ form_add_group.friends.label }}<br>
-                            {{ form_add_group.friends }}<br>
-                            {% for error in form_add_group.friends.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
+
                         <p>{{ form_add_group.submit() }}</p>
                     </form>
                 </div>

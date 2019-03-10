@@ -450,7 +450,6 @@ class PostLinkModel:
         """список новостей"""
         post_links = PostLink.query.filter(PostLink.place == place,
                                            PostLink.place_id == place_id).all()
-        print(post_links)
         posts = [post.post for post in post_links]
         return posts
 
@@ -462,7 +461,8 @@ class PostLinkModel:
             news += PostLinkModel().get_news("user", friend.friend)
         groups = GroupModel().get_for(user)
         for group in groups:
-            news += PostLinkModel().get_news("group", group.id)
+            news += [PostLinkModel().get_news("group", group)]
+        news.sort(key=lambda post: post.date, reverse=True)
         return news
 
 
