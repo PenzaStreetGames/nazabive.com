@@ -12,23 +12,28 @@
                             <img src="/static/images/messages.png" alt="1" class="avatar"/>
                         </div>
                         <div class="col-9 p-0">
-                            <a href="/dialog/{{chats[i].id}}"><p class="h6">{{chats[i].name}}</p></a>
+                            <a href="/dialog/{{ chats[i].id }}"><p class="h6">{{ chats[i].name }}</p></a>
                             {% if messages[i] %}
-                            <div class="row ml-1">
-                                <div class="col-1 p-0 text-center">
-                                    <img src="{{avatars[i]}}" alt="1" class="avatar_min"/>
+                                <div class="row ml-1">
+                                    <div class="col-1 p-0 text-center">
+                                        <img src="{{ avatars[i].path }}" alt="1" class="avatar_min"/>
+                                    </div>
+                                    <div class="col-6 p-0">
+                                        <p class="small mt-1">{{ messages[i].text }} </p>
+                                    </div>
+                                    <div class="col-4 small">
+                                        {{ messages[i].time }}
+                                    </div>
+                                    <div class="col-1 small">
+                                        {% if new_messages[i] %}
+                                            <b>+{{ new_messages[i] }}</b>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="col-11 p-0">
-                                    <p class="small mt-1">{{messages[i].content}} </p>
-                                </div>
-                                <div class="col-2">
-                                    {{ messages[i].time }}
-                                </div>
-                            </div>
                             {% else %}
-                             <div class="col-11 p-0">
-                                 <p class="small mt-1">Пока здесь пусто </p>
-                             </div>
+                                <div class="col-11 p-0">
+                                    <p class="small mt-1">Пока здесь пусто </p>
+                                </div>
                             {% endif %}
 
                         </div>

@@ -110,7 +110,7 @@ function updateMessages(dialog) {
                     area.innerHTML = ""
                     result  = JSON.parse(xmlhttp.responseText);
                     for (var i = 0; i < result["message_number"]; i++) {
-                        block = '<div class="pt-3 pb-2"> <div class="row ml-0"><div class="col-1"><img src="/{0}" alt="1" class="avatar"/></div><div class="col-9 p-0"><p class="h6">{1}</p><div class="row ml-1"><p class="small mt-1">{2} </p></div></div><div class="col-2">{3}</div></div></div>'
+                        block = '<div class="pt-3 pb-2"> <div class="row ml-0"><div class="col-1"><img src="/{0}" alt="1" class="avatar"/></div><div class="col-9 p-0"><p class="h6">{1}</p><div class="row ml-1"><p class="small mt-1">{2} </p></div></div><div class="col-2">{3}</div></div></div>';
                         block = block.format(result["avatars"][i], result["names"][i], result["messages_text"][i], result["messages_date"][i])
                         area.innerHTML += block
                     }
@@ -119,6 +119,23 @@ function updateMessages(dialog) {
         }
     };
     initBaseUI();
+}
+
+function loginToGroup(element, group) {
+    var xmlhttp = getXmlHttp();
+    xmlhttp.open('POST', SITENAME + 'login_to_group', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlhttp.send("group=" + encodeURIComponent(group));
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4) {
+            if (xmlhttp.status == 200) {
+                if (xmlhttp.responseText) {
+                    window.location.reload()
+
+                }
+            }
+        }
+    };
 }
 
 

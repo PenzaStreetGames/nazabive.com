@@ -23,6 +23,7 @@ class User(db.Model):
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
     avatar = db.Column(db.Integer, nullable=False, default=2)
+    time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
 class Post(db.Model):
@@ -546,9 +547,9 @@ class GroupMemberModel:
             return
         return member
 
-    def get(self, id):
+    def get(self, user, group):
         """получение участника группы по id"""
-        member = GroupMember.query.filter(GroupMember.id == id).first()
+        member = GroupMember.query.filter(GroupMember.user == user, GroupMember.group == group).first()
         if not member:
             return
         return member
@@ -684,7 +685,3 @@ class ResourceLinkModel:
 if __name__ == '__main__':
 
     db.create_all()
-    print(UserModel().get_all())
-    UserModel().add("User", "123", "Паша", "Соломатин")
-    print(UserModel().get_all())
-    app.run(port=8080, host="127.0.0.1")
