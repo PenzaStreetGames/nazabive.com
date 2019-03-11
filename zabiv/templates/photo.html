@@ -2,101 +2,108 @@
 
 
 {% block content %}
-    <form name="search" method="post">
-        <div class="row">
-            <div class="col-10 p-0">
-                <input type="text" class="form-control col-12 p-0" id="email"
-                       placeholder="Введите имя изображения"
-                       name="search">
-            </div>
-            <div class="col-2 p-0">
-                <button type="submit" class="btn text-white bg-dryandex mb-2 col-12">Поиск</button>
-
-            </div>
-        </div>
-    </form>
+<form name="search" method="post">
     <div class="row">
-        <h3>Ваши изображения</h3>
-        <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
-            <div class="pt-2 text-center">
-                <p><a href="" data-toggle="modal" data-target="#newRow">Добавить фото</a></p>
-            </div>
+        <div class="col-10 p-0">
+            <input type="text" class="form-control col-12 p-0" id="email"
+                   placeholder="Введите имя изображения"
+                   name="search">
+        </div>
+        <div class="col-2 p-0">
+            <button type="submit"
+                    class="btn text-white bg-dryandex mb-2 col-12">Поиск
+            </button>
 
         </div>
-        <div class="mt-1 ml-1 col-12">
-            <div class="row">
-                {% for img in photos %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                        <img src="{{ img.path }}" class="col-12 p-0 shadow" alt="photo"/>
-                        <p>{{ img.name }}</p>
-                    </div>
-                {% endfor %}
-
-            </div>
-        </div>
-        {% if search %}
-
-        <h3>Найденые изображения</h3>
-        <div class="mt-1 ml-1 col-12">
-            <div class="row">
-                {% for img in searched_files %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
-                        <img src="{{ img.path }}" class="col-12 p-0 shadow" alt="photo"/>
-                        <p> {{img.name}} </p>
-                    </div>
-                {% endfor %}
-
-            </div>
-        </div>
-
-        {% endif %}
     </div>
+</form>
+<div class="row">
+    <h3>Ваши изображения</h3>
+    <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
+        <div class="pt-2 text-center">
+            <p><a href="" data-toggle="modal" data-target="#newRow">Добавить
+                фото</a></p>
+        </div>
+
+    </div>
+    <div class="mt-1 ml-1 col-12">
+        <div class="row">
+            {% for img in photos %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
+                <img src="{{ img.path }}" class="col-12 p-0 shadow"
+                     alt="photo"/>
+                <p>{{ img.name }}</p>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% if search %}
+
+    <h3>Найденые изображения</h3>
+    <div class="mt-1 ml-1 col-12">
+        <div class="row">
+            {% for img in searched_files %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
+                <img src="{{ img.path }}" class="col-12 p-0 shadow"
+                     alt="photo"/>
+                <p> {{img.name}} </p>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    {% endif %}
+</div>
 
 {% endblock %}
 
 
-
 {% block modals %}
 
-    <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавление фотографии</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="post" enctype="multipart/form-data">
-                        <p>
-                            {{ form.name.label }}<br>
-                            {{ form.name(class_="form-control") }}<br>
-                            {% for error in form.name.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
-                        <p>
-                            {{ form.hidden_tag() }}
-                            {{ form.img.label }}<br>
-                            {{ form.img(class_="form-control") }}<br>
-                            {% for error in form.img.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
-
-                        <p>{{ form.submit() }}</p>
-                    </form>
-                </div>
-
+<div class="modal fade" id="newRow" tabindex="-1" role="dialog"
+     aria-labelledby="newRow"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление
+                    фотографии</h5>
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="modal-body">
+                <form action="" method="post" enctype="multipart/form-data">
+                    <p>
+                        {{ form.name.label }}<br>
+                        {{ form.name(class_="form-control") }}<br>
+                        {% for error in form.name.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.hidden_tag() }}
+                        {{ form.img.label }}<br>
+                        {{ form.img(class_="form-control") }}<br>
+                        {% for error in form.img.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+
+                    <p>{{ form.submit() }}</p>
+                </form>
+            </div>
+
         </div>
     </div>
+</div>
 {% endblock %}
 
 

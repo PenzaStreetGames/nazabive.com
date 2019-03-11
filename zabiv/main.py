@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, FileField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, \
+    FileField, BooleanField, SelectField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -17,12 +18,14 @@ class AddNewsForm(FlaskForm):
 class AboutUserForm(FlaskForm):
     """ Форма добавления описания пользователя """
 
-    description = TextAreaField('Кратко охарактеризуйте себя', validators=[DataRequired()])
+    description = TextAreaField('Кратко охарактеризуйте себя',
+                                validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
 class AboutGroupForm(FlaskForm):
-    description = TextAreaField('Напишите описание группы', validators=[DataRequired()])
+    description = TextAreaField('Напишите описание группы',
+                                validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
@@ -102,7 +105,8 @@ def get_form_data(*params):
 def is_auth():
     """ Авторизован ли пользователь """
     return "user_login" in session \
-           and UserModel().exists(session["user_login"], session["user_password"]) != "Not found"
+           and UserModel().exists(session["user_login"],
+                                  session["user_password"]) != "Not found"
 
 
 app = Flask(__name__)
@@ -161,7 +165,8 @@ def reg():
     if is_auth():
         return redirect("/profile")
     if request.method == "POST":
-        name, surname, login, password = get_form_data("name", "surname", "login", "password")
+        name, surname, login, password = get_form_data("name", "surname",
+                                                       "login", "password")
         if login and password:
             user = UserModel()
             user.add(login, password, name, surname)
@@ -209,7 +214,8 @@ def profile(id):
 
     if request.form.get("submit_ava"):
         file = request.files.get("document")
-        res = ResourceModel().create(file.filename, file, session["user_id"])
+        res = ResourceModel().create(file.filename, file.filename,
+                                     file, session["user_id"])
         link = ResourceLinkModel().create(res, "user", session["user_id"])
         user_model.set_avatar(session["user_id"], res.id)
     if form.validate_on_submit():
@@ -248,7 +254,7 @@ def profile(id):
         "form_about": about_form,
         "ava": avaform,
         "user": user,
-        "is_friend": is_friends, # Друзья ли они?
+        "is_friend": is_friends,  # Друзья ли они?
         "page_profile": True,
         "dates": dates
 
@@ -278,7 +284,9 @@ def group(id):
     friends_list = list(filter(
         lambda friend: not bool(GroupMemberModel().get_by(friend.friend, id)),
         friends_list))
-    friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
+    friends_list = [
+        (friend.friend, get_user_data(UserModel().get(friend.friend))) for
+        friend in friends_list]
 
     class AddUserToGroupForm(FlaskForm):
         friends = SelectField('Выберете участника', choices=[*friends_list])
@@ -332,7 +340,7 @@ def group(id):
 def group_members(id):
     """страница участников группы"""
     users_id = [member.user for member in
-                  GroupModel().get_of(id)]
+                GroupModel().get_of(id)]
     group_members = [UserModel().get(member) for member in users_id]
     avatars = [ResourceModel().get(user.avatar) for user in group_members]
 
@@ -545,12 +553,12 @@ def documents():
 def search_people(search_words):
     """вспомогательная функция поиска людей"""
     searched_people = UserModel().search(name=search_words[0]) + \
-                       UserModel().search(surname=search_words[0])
+                      UserModel().search(surname=search_words[0])
     if len(search_words) == 2:
         searched_people += UserModel().search(
             name=search_words[0], surname=search_words[1]) + \
-                            UserModel().search(
-                                name=search_words[1], surname=search_words[0])
+                           UserModel().search(
+                               name=search_words[1], surname=search_words[0])
     searched_friends = list(set(searched_people))
     return searched_people
 
@@ -605,7 +613,9 @@ def dialogs():
     chats_id = ChatModel().get_for(session["user_id"])
     chats = [ChatModel().get(member.chat) for member in chats_id]
     messages = [MessageModel().get_latest(chat.id) for chat in chats]
-    new_messages = list(map(len, [MessageModel().new_messages(session["user_id"], chat.id) for chat in chats]))
+    new_messages = list(map(len, [
+        MessageModel().new_messages(session["user_id"], chat.id) for chat in
+        chats]))
     authors_id = [message.sender if message else None for message in messages]
     authors = [UserModel().get(author) if author else None
                for author in authors_id]
@@ -631,8 +641,10 @@ def dialog(id):
     if request.method == "POST":
         friend_add_id = request.form.get("friends")
         is_private = ChatModel().get(id).private
-        print(friend_add_id, list(map(lambda el: el.user, ChatModel().get_of(id))))
-        already_in_dialog = int(friend_add_id) in list(map(lambda el: int(el.user), ChatModel().get_of(id)))
+        print(friend_add_id,
+              list(map(lambda el: el.user, ChatModel().get_of(id))))
+        already_in_dialog = int(friend_add_id) in list(
+            map(lambda el: int(el.user), ChatModel().get_of(id)))
         print(is_private, already_in_dialog)
         if not is_private and not already_in_dialog:
             chat_member = ChatMemberModel().add(friend_add_id, id)
@@ -640,9 +652,12 @@ def dialog(id):
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
     friends_list = list(filter(
-        lambda friend: not bool(ChatMemberModel().get(user=friend.friend, chat=id)),
+        lambda friend: not bool(
+            ChatMemberModel().get(user=friend.friend, chat=id)),
         friends_list))
-    friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
+    friends_list = [
+        (friend.friend, get_user_data(UserModel().get(friend.friend))) for
+        friend in friends_list]
 
     class AddUserToDialogForm(FlaskForm):
         friends = SelectField('Выберете участника', choices=[*friends_list])
@@ -678,7 +693,7 @@ def dialog(id):
 def chat_members(id):
     """страница участников беседы"""
     users_id = [member.user for member in
-                  ChatModel().get_of(id)]
+                ChatModel().get_of(id)]
     chat_members = [UserModel().get(member) for member in users_id]
     avatars = [ResourceModel().get(user.avatar) for user in chat_members]
 
@@ -769,7 +784,8 @@ def setfriend():
 def login_to_group():
     """  Асинхронный запрос на вступление в группу """
     gr = request.form.get("group")
-    in_group = bool(GroupMemberModel().get_by(user=session["user_id"], group=gr))
+    in_group = bool(
+        GroupMemberModel().get_by(user=session["user_id"], group=gr))
     if in_group:
         id_row = GroupMemberModel().get(session["user_id"], gr).id
         GroupMemberModel().delete(id_row)

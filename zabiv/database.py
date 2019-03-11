@@ -6,7 +6,6 @@ from flask import Flask, redirect, request, render_template, session
 from datetime import datetime
 from main import db
 
-
 if __name__ == '__main__':
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nazabive.db'
@@ -748,6 +747,5 @@ def init_base():
 
 
 if __name__ == '__main__':
-
     db.create_all()
     init_base()

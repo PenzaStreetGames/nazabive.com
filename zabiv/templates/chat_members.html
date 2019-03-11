@@ -7,8 +7,10 @@
     {% for i in range(number) %}
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
-            <img src="/{{avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
-            <a href="/profile/{{members[i].id}}" class="h6 text-dark">{{members[i].name}} {{members[i].surname}}</a>
+            <img src="/{{avatars[i].path}}" alt="1"
+                 class="avatar_middle mt-2 mb-2 shadow"/>
+            <a href="/profile/{{members[i].id}}" class="h6 text-dark">{{members[i].name}}
+                {{members[i].surname}}</a>
         </div>
     </div>
     {% endfor %}
