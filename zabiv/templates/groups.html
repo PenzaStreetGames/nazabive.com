@@ -23,7 +23,7 @@
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
             <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
-            <a href="/group/{{user_groups[i].id}}" class="h6 text-dark">{{user_groups[i].name}}</a>
+            <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{groups[i].name}}</a>
         </div>
     </div>
     {% endfor %}
@@ -36,7 +36,7 @@
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
             <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
-            <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{user_groups[i].name}}</a>
+            <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{groups[i].name}}</a>
         </div>
     </div>
     {% endfor %}

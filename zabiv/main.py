@@ -9,7 +9,6 @@ from database import *
 
 class AddNewsForm(FlaskForm):
     content = TextAreaField('Текст новости', validators=[DataRequired()])
-    document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
@@ -51,14 +50,6 @@ class AddGroupForm(FlaskForm):
 
 class AddDialogGroupForm(FlaskForm):
     name = StringField('Название: ', validators=[DataRequired()])
-    submit = SubmitField('Создать')
-
-
-class AddUserToDialogForm(FlaskForm):
-    friends = SelectField('Выберете участников', choices=[  # cast val as int
-        (0, '1'),
-        (1, '2'),
-    ])
     submit = SubmitField('Создать')
 
 
@@ -220,7 +211,15 @@ def profile(id):
 def group(id):
     form = AddNewsForm()
     group = GroupModel().get(id)
-    form_add_user = AddUserToDialogForm()
+    get_user_data = lambda obj: f"{obj.name} {obj.surname}"
+    friends_list = FriendModel().get_friends(session["user_id"])
+    friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
+
+    class AddUserToGroupForm(FlaskForm):
+        friends = SelectField('Выберете участника', choices=[*friends_list])
+        submit = SubmitField('Добавить')
+
+    form_add_user = AddUserToGroupForm()
 
     if form.validate_on_submit():
         content = get_form_data("content")[0]
@@ -281,9 +280,9 @@ def groups():
                          for group in other_groups]
         search = True
     else:
-        groups_id = [member.chat for member in
+        groups_id = [member.group for member in
                      GroupModel().get_for(session["user_id"])]
-        user_groups = [GroupModel().get(group.id) for group in groups_id]
+        user_groups = [GroupModel().get(group) for group in groups_id]
         other_groups = []
         real_avatars = [ResourceModel().get(group.avatar)
                         for group in user_groups]
@@ -441,11 +440,13 @@ def friends():
 @app.route("/dialogs", methods=['GET', 'POST'])
 def dialogs():
     form_add_group = AddDialogGroupForm()
-    if request.method == "POST":
-        pass
+    if form_add_group.validate_on_submit():
+        chat_model = ChatModel()
+        chat_model.create(session["user_id"], name=request.form.get("name"))
     chats_id = ChatModel().get_for(session["user_id"])
     chats = [ChatModel().get(member.chat) for member in chats_id]
     messages = [MessageModel().get_latest(chat.id) for chat in chats]
+    new_messages = list(map(len, [MessageModel().new_messages(session["user_id"], chat.id) for chat in chats]))
     authors_id = [message.sender if message else None for message in messages]
     authors = [UserModel().get(author) if author else None
                for author in authors_id]
@@ -457,6 +458,7 @@ def dialogs():
         "chats": chats,
         "avatars": avatars,
         "messages": messages,
+        "new_messages": new_messages,
         "form_add_group": form_add_group,
         "page_dialogs": True,
 
@@ -466,9 +468,25 @@ def dialogs():
 
 @app.route("/dialog/<int:id>", methods=['GET', 'POST'])
 def dialog(id):
-    form_add_user = AddUserToDialogForm()
     if request.method == "POST":
-        pass
+        friend_add_id = request.form.get("friends")
+        is_private = ChatModel().get(id).private
+        print(friend_add_id, list(map(lambda el: el.user, ChatModel().get_of(id))))
+        already_in_dialog = int(friend_add_id) in list(map(lambda el: int(el.user), ChatModel().get_of(id)))
+        print(is_private, already_in_dialog)
+        if not is_private and not already_in_dialog:
+            chat_member = ChatMemberModel().add(friend_add_id, id)
+
+    get_user_data = lambda obj: f"{obj.name} {obj.surname}"
+    friends_list = FriendModel().get_friends(session["user_id"])
+    friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
+
+    class AddUserToDialogForm(FlaskForm):
+        friends = SelectField('Выберете участника', choices=[*friends_list])
+        submit = SubmitField('Добавить')
+
+    form_add_user = AddUserToDialogForm()
+
     messages = MessageModel().get_for(id)
     messages.sort(key=lambda message: message.time)
     authors_id = [message.sender for message in messages]

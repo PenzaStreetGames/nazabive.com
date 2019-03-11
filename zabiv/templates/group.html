@@ -127,15 +127,7 @@
                                 </div>
                             {% endfor %}
                         </p>
-                        <p>
-                            {{ form.document.label }}<br>
-                            {{ form.document(class_="form-control pb-5") }}<br>
-                            {% for error in form.document.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
+
                         <p>{{ form.submit() }}</p>
                     </form>
                 </div>
