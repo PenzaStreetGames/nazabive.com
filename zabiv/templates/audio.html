@@ -27,7 +27,7 @@
                 {% for audio in audios %}
                     <div class="col-12 p-2">
                         <audio controls class="col-12 p-0 shadow">
-                            <source src="{{ audio.link }}" type="audio/mpeg">
+                            <source src="/{{ audio.path }}" type="audio/mpeg">
                         </audio>
                     </div>
                 {% endfor %}

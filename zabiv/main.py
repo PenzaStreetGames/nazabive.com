@@ -363,7 +363,7 @@ def audio():
                                    place_id=session["user_id"])
     render_data = {
         "title": "Аудиозаписи",
-        "audios": ResourceModel().get_for(session["user_id"], category="audio"),
+        "audios": ResourceModel().get_for(session["user_id"], category="music"),
         "form": AudioForm()
 
     }
