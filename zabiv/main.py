@@ -330,6 +330,7 @@ def group(id):
 
 @app.route("/group_members/<int:id>", methods=["GET"])
 def group_members(id):
+    """страница участников группы"""
     users_id = [member.user for member in
                   GroupModel().get_of(id)]
     group_members = [UserModel().get(member) for member in users_id]
@@ -542,6 +543,7 @@ def documents():
 
 
 def search_people(search_words):
+    """вспомогательная функция поиска людей"""
     searched_people = UserModel().search(name=search_words[0]) + \
                        UserModel().search(surname=search_words[0])
     if len(search_words) == 2:
@@ -674,6 +676,7 @@ def dialog(id):
 
 @app.route("/chat_members/<int:id>", methods=["GET"])
 def chat_members(id):
+    """страница участников беседы"""
     users_id = [member.user for member in
                   ChatModel().get_of(id)]
     chat_members = [UserModel().get(member) for member in users_id]
