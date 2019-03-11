@@ -6,7 +6,6 @@
     <div class="row">
         <div class="col-10 p-0">
             <input type="text" class="form-control col-12 p-0" id="email"
-                   aria-describedby="emailHelp"
                    placeholder="Введите имя файла"
                    name="search">
         </div>
@@ -76,25 +75,6 @@
 
     {% endif %}
 
-
-    {% for document in documents%}
-    <div class="mt-1 ml-1 col-12">
-        <div class="row">
-            <div class="col-12 p-2 bg-white shadow">
-                <div class="row">
-                    <div class="col-1">
-                        <img src="/static/images/document.png"
-                             class="col-12 p-0 sign_post" alt="photo"/>
-                    </div>
-                    <div class="col-11"><a href="/{{document.path}}" download>{{document.name}}</a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-    {%endfor%}
 </div>
 
 {%endblock%}

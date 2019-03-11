@@ -14,7 +14,7 @@
                     <div class="col-12 mt-3">
                         {% if in_group %}
                             <button type="button" class="btn text-white bg-dryandex col-12 mb-1" data-toggle="modal"
-                                    data-target="#editAbout">Описание группы
+                                    data-target="#editAbout">Изменить описание
                             </button>
                         {% endif %}
                         <button type="button" class="btn text-white bg-dryandex col-12"
@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-7 mt-4">
                     <h1 class="h1">{{ group.name }}</h1>
-                    <p class="pb-3 small"></p>
+                    <p class="pb-3 small">{{ about }}</p>
 
                 </div>
             </div>
@@ -147,7 +147,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">О себе:</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">О группе:</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -156,9 +156,9 @@
                     <form action="" method="post" novalidate>
                         {{ form_about.hidden_tag() }}
                         <p>
-                            {{ form_about.content.label }}<br>
-                            {{ form_about.content(class_="form-control") }}<br>
-                            {% for error in form_about.content.errors %}
+                            {{ form_about.description.label }}<br>
+                            {{ form_about.description(class_="form-control") }}<br>
+                            {% for error in form_about.description.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>

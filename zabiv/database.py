@@ -625,7 +625,7 @@ class ResourceModel:
     def choose_category(self, resolution):
         """выбрать категорию ресурса по его разрешению"""
         categories = {"image": ["png", "jpg", "gif"],
-                      "music": ["mp3", "wav"],
+                      "music": ["mp3", "wav", "ogg"],
                       "video": ["mp4"],
                       "document": ["all other resolutions"]}
         if resolution in categories["image"]:
@@ -641,12 +641,12 @@ class ResourceModel:
         files = Resource.query.filter().all()
         return files
 
-    def create(self, name, file, author):
+    def create(self, server_name, name, file, author):
         """создание файла на сервере"""
         resolution = name.split(".")[-1]
         filename = ".".join(name.split(".")[:-1])
         category = ResourceModel().choose_category(name.split(".")[-1])
-        resource = Resource(author=author, name=filename, category=category)
+        resource = Resource(author=author, name=server_name, category=category)
         db.session.add(resource)
         db.session.commit()
         file_id = resource.id

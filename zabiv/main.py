@@ -17,6 +17,11 @@ class AboutUserForm(FlaskForm):
     submit = SubmitField('Сохранить')
 
 
+class AboutGroupForm(FlaskForm):
+    description = TextAreaField('Напишите описание группы', validators=[DataRequired()])
+    submit = SubmitField('Сохранить')
+
+
 class AuthForm(FlaskForm):
     login = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -24,25 +29,25 @@ class AuthForm(FlaskForm):
 
 
 class ImageForm(FlaskForm):
-    name = TextAreaField('Название', validators=[DataRequired()])
+    name = StringField('Теги', validators=[DataRequired()])
     img = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class VideoForm(FlaskForm):
-    name = TextAreaField('Название', validators=[DataRequired()])
+    name = StringField('Теги', validators=[DataRequired()])
     video = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class AudioForm(FlaskForm):
-    name = TextAreaField('Название', validators=[DataRequired()])
+    name = StringField('Теги', validators=[DataRequired()])
     audio = FileField('Аудиозапись', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class DocumentForm(FlaskForm):
-    name = TextAreaField('Название', validators=[DataRequired()])
+    name = StringField('Теги', validators=[DataRequired()])
     document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
@@ -173,7 +178,7 @@ def profile(id):
 
     if about_form.validate_on_submit():
         content = request.form.get("description")
-        if description:
+        if content:
             DescriptionModel().change(id=description.id, new_text=content)
             return redirect(f"/profile/{id}")
 
@@ -233,9 +238,14 @@ def group(id):
         if friend:
             GroupMemberModel().create(user=friend, group=id)
     form = AddNewsForm()
-    about_form = AboutUserForm()
+    about_form = AboutGroupForm()
+    description = DescriptionModel().get_for(place="group", place_id=id)
+
     if about_form.validate_on_submit():
-        print("!!!!!!!!!") # Обновление описания польхователя.
+        content = request.form.get("description")
+        if content:
+            DescriptionModel().change(id=description.id, new_text=content)
+            return redirect(f"/group/{id}")
     group = GroupModel().get(id)
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
@@ -285,7 +295,8 @@ def group(id):
         "page_group": True,
         "group_main_page": True,
         "dates": dates,
-        "session": session
+        "session": session,
+        "about": description.text
 
     }
     return render_template("group.html", **render_data)
@@ -368,10 +379,12 @@ def photo():
     searched_files = []
     if request.method == "POST":
         if request.files.get("img"):
+            name = request.form.get("name")
             file = request.files["img"]
             filename = file.filename
             resource = ResourceModel().create(name=filename, file=file,
-                                              author=session["user_id"])
+                                              author=session["user_id"],
+                                              server_name=name)
             ResourceLinkModel().create(resource=resource, place="user",
                                        place_id=session["user_id"])
             return redirect("/photo")
@@ -400,10 +413,12 @@ def videos():
     searched_files = []
     if request.method == "POST":
         if request.files.get("video"):
+            name = request.form.get("name")
             file = request.files["video"]
             filename = file.filename
             resource = ResourceModel().create(name=filename, file=file,
-                                              author=session["user_id"])
+                                              author=session["user_id"],
+                                              server_name=name)
             ResourceLinkModel().create(resource=resource, place="user",
                                        place_id=session["user_id"])
             return redirect("/videos")
@@ -429,12 +444,16 @@ def videos():
 def audio():
     if not is_auth():
         return redirect("/")
+    search = False
+    searched_files = []
     if request.method == "POST":
         if request.files.get("audio"):
+            name = request.form.get("name")
             file = request.files["audio"]
             filename = file.filename
             resource = ResourceModel().create(name=filename, file=file,
-                                              author=session["user_id"])
+                                              author=session["user_id"],
+                                              server_name=name)
             ResourceLinkModel().create(resource=resource, place="user",
                                        place_id=session["user_id"])
             return redirect("/audio")
@@ -446,7 +465,10 @@ def audio():
     render_data = {
         "title": "Аудиозаписи",
         "audios": ResourceModel().get_for(session["user_id"], category="music"),
-        "form": AudioForm()
+        "form": AudioForm(),
+        "search": search,
+        "searched_files": searched_files,
+        "number": len(searched_files)
 
     }
     return render_template("audio.html", **render_data)
@@ -456,25 +478,33 @@ def audio():
 def documents():
     if not is_auth():
         return redirect("/")
+    search = False
+    searched_files = []
     if request.method == "POST":
         if request.files.get("document"):
+            name = request.form.get("name")
             file = request.files["document"]
             filename = file.filename
             resource = ResourceModel().create(name=filename, file=file,
-                                              author=session["user_id"])
+                                              author=session["user_id"],
+                                              server_name=name)
             ResourceLinkModel().create(resource=resource, place="user",
                                        place_id=session["user_id"])
             return redirect("/documents")
         if request.form.get("search"):
             search_words = request.form["search"]
             searched_files = ResourceModel().search(name=search_words,
-                                                    category="documents")
+                                                    category="document")
+
             search = True
     render_data = {
         "title": "Документы",
         "documents": ResourceModel().get_for(session["user_id"],
                                              category="document"),
-        "form": DocumentForm()
+        "form": DocumentForm(),
+        "search": search,
+        "searched_files": searched_files,
+        "number": len(searched_files)
 
     }
     return render_template("documents.html", **render_data)
