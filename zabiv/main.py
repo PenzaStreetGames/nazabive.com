@@ -13,7 +13,7 @@ class AddNewsForm(FlaskForm):
 
 
 class AboutUserForm(FlaskForm):
-    content = TextAreaField('Кратко охарактеризуйте себя', validators=[DataRequired()])
+    content = TextAreaField('Описание', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
@@ -24,21 +24,25 @@ class AuthForm(FlaskForm):
 
 
 class ImageForm(FlaskForm):
+    name = TextAreaField('Название', validators=[DataRequired()])
     img = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class VideoForm(FlaskForm):
+    name = TextAreaField('Название', validators=[DataRequired()])
     video = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class AudioForm(FlaskForm):
+    name = TextAreaField('Название', validators=[DataRequired()])
     audio = FileField('Аудиозапись', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class DocumentForm(FlaskForm):
+    name = TextAreaField('Название', validators=[DataRequired()])
     document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
@@ -221,6 +225,9 @@ def profile(id):
 @app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
     form = AddNewsForm()
+    about_form = AboutUserForm()
+    if about_form.validate_on_submit():
+        print("!!!!!!!!!") # Обновление описания польхователя.
     group = GroupModel().get(id)
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
@@ -256,6 +263,7 @@ def group(id):
         "name": group.name,
         "avatar_group": ava.path,
         "news": posts,
+        "form_about": about_form,
         # "authors": authors,
         "likes": likes,
         "liked": liked,

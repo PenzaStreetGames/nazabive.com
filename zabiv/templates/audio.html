@@ -55,6 +55,15 @@
                     <form action="" method="post" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         <p>
+                            {{ form.name.label }}<br>
+                            {{ form.name(class_="form-control") }}<br>
+                            {% for error in form.name.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>
                             {{ form.audio.label }}<br>
                             {{ form.audio(class_="form-control") }}<br>
                             {% for error in form.audio.errors %}
