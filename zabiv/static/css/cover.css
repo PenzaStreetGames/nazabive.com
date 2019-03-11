@@ -9,6 +9,17 @@ a:hover {
   color: #fff;
 }
 
+.intro {
+    text-shadow: 0px 0px 20px #000000;
+        font-size: 2rem;
+
+}
+
+.cover-heading {
+    font-size: 3.5rem;
+}
+
+
 /* Custom default button */
 .btn-secondary,
 .btn-secondary:hover,
@@ -37,6 +48,7 @@ body {
   color: #fa0;
   text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
   box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .cover-container {
