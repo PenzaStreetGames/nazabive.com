@@ -121,6 +121,14 @@ class ResourceLink(db.Model):
     place_id = db.Column(db.Integer, nullable=False)
 
 
+class Description(db.Model):
+    """описания пользователей или групп"""
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(1000), nullable=False)
+    place = db.Column(db.String(20), nullable=False)
+    place_id = db.Column(db.Integer, nullable=False)
+
+
 class UserModel:
     """обработка пользователей"""
 
@@ -130,6 +138,9 @@ class UserModel:
                         name=name, surname=surname)
         try:
             db.session.add(new_user)
+            db.session.commit()
+            DescriptionModel().create(text="Описание отсутствует", place="user",
+                                      place_id=new_user.id)
             db.session.commit()
         except Exception as error:
             print(error)
@@ -376,6 +387,7 @@ class ChatModel:
 
 
 class MessageModel:
+    """работа с сообщениями"""
 
     def create(self, user, chat, text):
         """отправка сообщения"""
@@ -429,6 +441,7 @@ class MessageModel:
 
 
 class PostLinkModel:
+    """работа с ссылками на новости"""
 
     def create(self, post, place, place_id):
         """создание ссылки на новость"""
@@ -467,6 +480,7 @@ class PostLinkModel:
 
 
 class PostModel:
+    """работа с новостями"""
 
     def create(self, author_type, author, content):
         """создание новости"""
@@ -532,6 +546,7 @@ class LikeModel:
 
 
 class GroupMemberModel:
+    """работа с участниками групп"""
 
     def create(self, user, group):
         """создание участника группы"""
@@ -565,11 +580,15 @@ class GroupMemberModel:
 
 
 class GroupModel:
+    """работа с группами"""
 
     def create(self, *users, name="Unnamed"):
         """создание группы"""
         group = Group(name=name)
         db.session.add(group)
+        db.session.commit()
+        DescriptionModel().create(text="Описание отсутствует", place="group",
+                                  place_id=group.id)
         db.session.commit()
         for user in users:
             member = GroupMember(user=user, group=group.id)
@@ -601,6 +620,7 @@ class GroupModel:
 
 
 class ResourceModel:
+    """работа с ресурсами"""
 
     def choose_category(self, resolution):
         """выбрать категорию ресурса по его разрешению"""
@@ -656,15 +676,16 @@ class ResourceModel:
         """поиск файла по имени"""
         if category:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%"),
+                Resource.name.like(f"%{name}%"),
                 Resource.category == category).all()
         else:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%")).all()
+                Resource.name.like(f"%{name}%")).all()
         return resources
 
 
 class ResourceLinkModel:
+    """работа с ссылками на ресурсы"""
 
     def create(self, resource, place, place_id):
         """создание ссылки на ресурс"""
@@ -682,9 +703,48 @@ class ResourceLinkModel:
         return resources
 
 
+class DescriptionModel:
+    """работа с описаниями"""
+
+    def create(self, text, place, place_id):
+        """создания описания"""
+        description = Description(text=text, place=place, place_id=place_id)
+        db.session.add(description)
+        db.session.commit()
+
+    def get(self, id):
+        """получение описания по id"""
+        description = Description.query.filter(Description.id == id).first()
+
+    def get_for(self, place, place_id):
+        """получение описания по месту размещения"""
+        description = Description.query.filter(
+            Description.place == place,
+            Description.place_id == place_id).first()
+        if not description:
+            return
+        return description
+
+    def change(self, id, new_text):
+        """изменение существующего описания"""
+        description = Description.query.filter(Description.id == id).first()
+        description.text = new_text
+        db.session.commit()
+
+    def delete(self, id):
+        """удаление описания по id"""
+        try:
+            Description.query.filter(Description.id == id).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
+
+
 def init_base():
     UserModel().add("User", "123", "Паша", "Соломатин")
     UserModel().add("Login", "123", "Захар", "Тугушев")
+    UserModel().add("Medal", "123", "Лёша", "Медведев")
 
 
 if __name__ == '__main__':

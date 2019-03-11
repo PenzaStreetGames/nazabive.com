@@ -147,9 +147,9 @@
                         <form action="" method="post" novalidate>
                             {{ form_about.hidden_tag() }}
                             <p>
-                                {{ form_about.content.label }}<br>
-                                {{ form_about.content(class_="form-control") }}<br>
-                                {% for error in form_about.content.errors %}
+                                {{ form_about.description.label }}<br>
+                                {{ form_about.description(class_="form-control") }}<br>
+                                {% for error in form_about.description.errors %}
                                     <div class="alert alert-danger" role="alert">
                                         {{ error }}
                                     </div>

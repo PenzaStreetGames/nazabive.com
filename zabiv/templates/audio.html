@@ -5,8 +5,8 @@
     <form name="search" method="post">
         <div class="row">
             <div class="col-10 p-0">
-                <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
-                       placeholder="Введите имя друга"
+                <input type="text" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
+                       placeholder="Введите имя аудиозаписи"
                        name="search">
             </div>
             <div class="col-2 p-0">
@@ -16,6 +16,7 @@
         </div>
     </form>
     <div class="row">
+        <h3>Ваши аудиозаписи</h3>
         <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
             <div class="pt-2 text-center">
                 <p><a href="" data-toggle="modal" data-target="#newRow">Добавить аудиозапись</a></p>
@@ -34,6 +35,23 @@
 
             </div>
         </div>
+        {% if search %}
+
+        <h3>Найденые аудиозаписи</h3>
+        <div class="mt-1 ml-1 col-12">
+            <div class="row">
+                {% for audio in searched_files %}
+                    <div class="col-12 p-2">
+                        <audio controls class="col-12 p-0 shadow">
+                            <source src="/{{ audio.path }}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {% endif %}
     </div>
 
 {% endblock %}
