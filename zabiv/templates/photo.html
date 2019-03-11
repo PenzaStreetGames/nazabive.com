@@ -70,14 +70,26 @@
                 </div>
                 <div class="modal-body">
                     <form action="" method="post" enctype="multipart/form-data">
-                        {{ form.hidden_tag() }}
-                        {{ form.img.label }}<br>
-                        {{ form.img(class_="form-control") }}<br>
-                        {% for error in form.img.errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
+                        <p>
+                            {{ form.name.label }}<br>
+                            {{ form.name(class_="form-control") }}<br>
+                            {% for error in form.name.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>
+                            {{ form.hidden_tag() }}
+                            {{ form.img.label }}<br>
+                            {{ form.img(class_="form-control") }}<br>
+                            {% for error in form.img.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+
                         <p>{{ form.submit() }}</p>
                     </form>
                 </div>
