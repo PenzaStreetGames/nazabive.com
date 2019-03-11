@@ -168,6 +168,7 @@ def profile(id):
 
     if about_form.validate_on_submit():
         print("!!!!!!!!!") # Обновление описания польхователя.
+
     if request.form.get("submit_ava"):
         file = request.files.get("document")
         res = ResourceModel().create(file.filename, file, session["user_id"])
