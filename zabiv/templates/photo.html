@@ -5,8 +5,8 @@
     <form name="search" method="post">
         <div class="row">
             <div class="col-10 p-0">
-                <input type="email" class="form-control col-12 p-0" id="email" aria-describedby="emailHelp"
-                       placeholder="Введите имя друга"
+                <input type="text" class="form-control col-12 p-0" id="email"
+                       placeholder="Введите имя изображения"
                        name="search">
             </div>
             <div class="col-2 p-0">
@@ -16,6 +16,7 @@
         </div>
     </form>
     <div class="row">
+        <h3>Ваши изображения</h3>
         <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12">
             <div class="pt-2 text-center">
                 <p><a href="" data-toggle="modal" data-target="#newRow">Добавить фото</a></p>
@@ -27,11 +28,28 @@
                 {% for img in photos %}
                     <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
                         <img src="{{ img.path }}" class="col-12 p-0 shadow" alt="photo"/>
+                        <p>{{ img.name }}</p>
                     </div>
                 {% endfor %}
 
             </div>
         </div>
+        {% if search %}
+
+        <h3>Найденые изображения</h3>
+        <div class="mt-1 ml-1 col-12">
+            <div class="row">
+                {% for img in searched_files %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 bg-white shadow p-2">
+                        <img src="{{ img.path }}" class="col-12 p-0 shadow" alt="photo"/>
+                        <p> {{img.name}} </p>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {% endif %}
     </div>
 
 {% endblock %}

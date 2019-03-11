@@ -41,9 +41,11 @@
                 <div class="h4 text-dark text-center pt-2 mb-3">Моя страница</div>
                 <div class="list-group" id="list-tab" role="tablist">
                     <a class="list-group-item list-group-item-action"
+                       href="/profile">Профиль</a>
+                    <a class="list-group-item list-group-item-action"
                        href="/news">Новости</a>
                     <a class="list-group-item list-group-item-action"
-                       href="/profile">Профиль</a>
+                       href="/groups">Группы</a>
                     <a class="list-group-item list-group-item-action"
                        href="/friends">Друзья</a>
                     <a class="list-group-item list-group-item-action"
@@ -56,8 +58,7 @@
                        href="/videos">Видеозаписи</a>
                     <a class="list-group-item list-group-item-action"
                        href="/documents">Документы</a>
-                    <a class="list-group-item list-group-item-action"
-                       href="/groups">Группы</a>
+
                 </div>
                 {% if page_profile and user.id != session["user_id"] %}
                     <div class="h4 text-dark text-center mt-3 mb-3">{{ user.name }} {{ user.surname }}</div>
@@ -88,17 +89,13 @@
                     <div class="h4 text-dark text-center mt-3 mb-3">{{ group.name }}</div>
                     <div class="list-group" id="list-tab" role="tablist">
                         <a class="list-group-item list-group-item-action"
-                           href="/profile/{{ user.id }}">Стена группы</a>
+                           href="/group/{{ group.id }}">Стена группы</a>
                         <a class="list-group-item list-group-item-action"
-                           href="/friends/{{ user.id }}">Участники</a>
-                        <a class="list-group-item list-group-item-action"
-                           href="/photo/{{ user.id }}">Фотографии</a>
-                        <a class="list-group-item list-group-item-action"
-                           href="/videos/{{ user.id }}">Видеозаписи</a>
-                        <a class="list-group-item list-group-item-action"
-                           href="/documents/{{ user.id }}">Документы</a>
+                           href="/group_members/{{ group.id }}">Участники</a>
+                        {% if group_main_page %}
                         <a class="list-group-item list-group-item-action"
                            href="#" data-toggle="modal" data-target="#addUserGroup">Добавить участников</a>
+                        {% endif %}
 
                     </div>
                 {% endif %}
@@ -111,11 +108,16 @@
                     </div>
                 {% endif %}
                 {% if page_dialog %}
-                    <div class="h4 text-dark text-center mt-3 mb-3">Диалоги</div>
+                    <div class="h4 text-dark text-center mt-3 mb-3">Сообщения</div>
                     <div class="list-group" id="list-tab" role="tablist">
                         <a class="list-group-item list-group-item-action"
+                           href="/dialog/{{ dialog.id }}">Сообщения беседы</a>
+                        <a class="list-group-item list-group-item-action"
+                           href="/chat_members/{{ dialog.id }}">Участники</a>
+                        {% if dialog_main_page %}
+                        <a class="list-group-item list-group-item-action"
                            href="#" data-toggle="modal" data-target="#addUserGroup">Добавить участников</a>
-
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

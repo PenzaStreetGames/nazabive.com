@@ -3,6 +3,12 @@
 
 {% block content %}
 
+    {% if chats_number == 0 %}
+        <div class="alert alert-light" role="alert">
+            У вас пока нет ни одной переписки
+        </div>
+    {% endif %}
+
     {% for i in range(chats_number) %}
         <div class="row">
             <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">

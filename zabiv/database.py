@@ -22,7 +22,7 @@ class User(db.Model):
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=False, default=2)
+    avatar = db.Column(db.Integer, nullable=False, default=1)
     time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
@@ -47,7 +47,7 @@ class Group(db.Model):
     """группы"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=False, default=2)
+    avatar = db.Column(db.Integer, nullable=False, default=1)
 
 
 class Resource(db.Model):
@@ -121,6 +121,14 @@ class ResourceLink(db.Model):
     place_id = db.Column(db.Integer, nullable=False)
 
 
+class Description(db.Model):
+    """описания пользователей или групп"""
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(1000), nullable=False)
+    place = db.Column(db.String(20), nullable=False)
+    place_id = db.Column(db.Integer, nullable=False)
+
+
 class UserModel:
     """обработка пользователей"""
 
@@ -130,6 +138,9 @@ class UserModel:
                         name=name, surname=surname)
         try:
             db.session.add(new_user)
+            db.session.commit()
+            DescriptionModel().create(text="Описание отсутствует", place="user",
+                                      place_id=new_user.id)
             db.session.commit()
         except Exception as error:
             print(error)
@@ -310,7 +321,7 @@ class ChatMemberModel:
         member = ChatMember.query.filter(ChatMember.user == user,
                                          ChatMember.chat == chat).first()
         if not member:
-            return "Not found"
+            return
         return member
 
     def update_invite(self, id):
@@ -376,6 +387,7 @@ class ChatModel:
 
 
 class MessageModel:
+    """работа с сообщениями"""
 
     def create(self, user, chat, text):
         """отправка сообщения"""
@@ -429,6 +441,7 @@ class MessageModel:
 
 
 class PostLinkModel:
+    """работа с ссылками на новости"""
 
     def create(self, post, place, place_id):
         """создание ссылки на новость"""
@@ -460,13 +473,14 @@ class PostLinkModel:
         friends = FriendModel().get_friends(user)
         for friend in friends:
             news += PostLinkModel().get_news("user", friend.friend)
-        groups = GroupModel().get_for(user)
+        groups = [member.group for member in GroupModel().get_for(user)]
         for group in groups:
-            news += [PostLinkModel().get_news("group", group)]
+            news += PostLinkModel().get_news(place="group", place_id=group)
         return news
 
 
 class PostModel:
+    """работа с новостями"""
 
     def create(self, author_type, author, content):
         """создание новости"""
@@ -532,6 +546,7 @@ class LikeModel:
 
 
 class GroupMemberModel:
+    """работа с участниками групп"""
 
     def create(self, user, group):
         """создание участника группы"""
@@ -547,9 +562,9 @@ class GroupMemberModel:
             return
         return member
 
-    def get(self, user, group):
+    def get(self, id):
         """получение участника группы по id"""
-        member = GroupMember.query.filter(GroupMember.user == user, GroupMember.group == group).first()
+        member = GroupMember.query.filter(GroupMember.id == id).first()
         if not member:
             return
         return member
@@ -565,11 +580,15 @@ class GroupMemberModel:
 
 
 class GroupModel:
+    """работа с группами"""
 
     def create(self, *users, name="Unnamed"):
         """создание группы"""
         group = Group(name=name)
         db.session.add(group)
+        db.session.commit()
+        DescriptionModel().create(text="Описание отсутствует", place="group",
+                                  place_id=group.id)
         db.session.commit()
         for user in users:
             member = GroupMember(user=user, group=group.id)
@@ -601,11 +620,12 @@ class GroupModel:
 
 
 class ResourceModel:
+    """работа с ресурсами"""
 
     def choose_category(self, resolution):
         """выбрать категорию ресурса по его разрешению"""
         categories = {"image": ["png", "jpg", "gif"],
-                      "music": ["mp3", "wav"],
+                      "music": ["mp3", "wav", "ogg"],
                       "video": ["mp4"],
                       "document": ["all other resolutions"]}
         if resolution in categories["image"]:
@@ -621,12 +641,12 @@ class ResourceModel:
         files = Resource.query.filter().all()
         return files
 
-    def create(self, name, file, author):
+    def create(self, server_name, name, file, author):
         """создание файла на сервере"""
         resolution = name.split(".")[-1]
         filename = ".".join(name.split(".")[:-1])
         category = ResourceModel().choose_category(name.split(".")[-1])
-        resource = Resource(author=author, name=filename, category=category)
+        resource = Resource(author=author, name=server_name, category=category)
         db.session.add(resource)
         db.session.commit()
         file_id = resource.id
@@ -656,15 +676,16 @@ class ResourceModel:
         """поиск файла по имени"""
         if category:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%"),
+                Resource.name.like(f"%{name}%"),
                 Resource.category == category).all()
         else:
             resources = Resource.query.filter(
-                Resource.name.like(f"%name%")).all()
+                Resource.name.like(f"%{name}%")).all()
         return resources
 
 
 class ResourceLinkModel:
+    """работа с ссылками на ресурсы"""
 
     def create(self, resource, place, place_id):
         """создание ссылки на ресурс"""
@@ -682,6 +703,51 @@ class ResourceLinkModel:
         return resources
 
 
+class DescriptionModel:
+    """работа с описаниями"""
+
+    def create(self, text, place, place_id):
+        """создания описания"""
+        description = Description(text=text, place=place, place_id=place_id)
+        db.session.add(description)
+        db.session.commit()
+
+    def get(self, id):
+        """получение описания по id"""
+        description = Description.query.filter(Description.id == id).first()
+
+    def get_for(self, place, place_id):
+        """получение описания по месту размещения"""
+        description = Description.query.filter(
+            Description.place == place,
+            Description.place_id == place_id).first()
+        if not description:
+            return
+        return description
+
+    def change(self, id, new_text):
+        """изменение существующего описания"""
+        description = Description.query.filter(Description.id == id).first()
+        description.text = new_text
+        db.session.commit()
+
+    def delete(self, id):
+        """удаление описания по id"""
+        try:
+            Description.query.filter(Description.id == id).delete()
+            db.session.commit()
+        except Exception as error:
+            print(error)
+            db.session.rollback()
+
+
+def init_base():
+    UserModel().add("User", "123", "Паша", "Соломатин")
+    UserModel().add("Login", "123", "Захар", "Тугушев")
+    UserModel().add("Medal", "123", "Лёша", "Медведев")
+
+
 if __name__ == '__main__':
 
     db.create_all()
+    init_base()
