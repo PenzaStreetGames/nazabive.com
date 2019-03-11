@@ -12,6 +12,11 @@ class AddNewsForm(FlaskForm):
     submit = SubmitField('Добавить')
 
 
+class AboutUserForm(FlaskForm):
+    content = TextAreaField('Кратко охарактеризуйте себя', validators=[DataRequired()])
+    submit = SubmitField('Сохранить')
+
+
 class AuthForm(FlaskForm):
     login = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -154,12 +159,15 @@ def profile_me():
 @app.route("/profile/<id>", methods=['GET', 'POST'])
 def profile(id):
     user_model = UserModel()
+    about_form = AboutUserForm()
     form = AddNewsForm()
     user = user_model.get(id)
     avaform = AvaForm()
     post = PostModel()
     title = f"{user.name} {user.surname}"
 
+    if about_form.validate_on_submit():
+        print("!!!!!!!!!") # Обновление описания польхователя.
     if request.form.get("submit_ava"):
         file = request.files.get("document")
         res = ResourceModel().create(file.filename, file, session["user_id"])
@@ -189,6 +197,7 @@ def profile(id):
         "number": len(posts),
         "name": user.name,
         "surname": user.surname,
+        "about": "", # user.about, ЗАГЛУШКА ОПИСАНИЯ ПОЛЬЗОВАТЕЛЯ***!!!!!!!!!!!!!!!!!!!!!!!!!!!
         "avatar_profile": ava.path if ava else "static/images/no_photo.png",
         "news": posts,
         "authors": authors,
@@ -197,6 +206,7 @@ def profile(id):
         "liked": liked,
         "avatars": avatars,
         "form": form,
+        "form_about": about_form,
         "ava": avaform,
         "user": user,
         "is_friend": is_friends,  # Друзья ли они?

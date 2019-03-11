@@ -22,12 +22,14 @@
                                     </div>
                                 {% endfor %}
                             </p>
-                            <p>{{ ava.submit_ava(class_="btn btn-dark col-12") }}</p>
+                            <p class="mb-1">{{ ava.submit_ava(class_="btn btn-dark col-12") }}</p>
                         </form>
+                        <button type="button" class="btn text-white bg-dryandex col-12" data-toggle="modal" data-target="#editAbout" >О себе</button>
                     {% endif %}
                     {% if session["user_id"] != user.id %}
                         <div class="col-12 mt-3">
-                            <button type="button" class="btn text-white bg-dryandex col-12" onclick="setFriend(this, {{ user.id }})">
+                            <button type="button" class="btn text-white bg-dryandex col-12"
+                                    onclick="setFriend(this, {{ user.id }})">
                                 {% if is_friend %}
                                     Удалить из друзей
                                 {% else %}
@@ -45,7 +47,7 @@
                 </div>
                 <div class="col-7 mt-4">
                     <h1 class="h1">{{ surname }} {{ name }}</h1>
-
+                    <p>{{ about }}</p>
                 </div>
             </div>
 
@@ -54,11 +56,12 @@
     </div>
     <div class="row">
         {% if session["user_id"] == user.id %}
-        <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
-            <div class="pt-2 text-center">
-                <p>Есть о чем рассказать?  <a href="" data-toggle="modal" data-target="#newRow">Добавить запись</a></p>
+            <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+                <div class="pt-2 text-center">
+                    <p>Есть о чем рассказать? <a href="" data-toggle="modal" data-target="#newRow">Добавить запись</a>
+                    </p>
+                </div>
             </div>
-        </div>
         {% endif %}
         {% for i in range(number) %}
             <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
@@ -70,8 +73,8 @@
                         <div class="col-9">
                             <p class="h4 mt-2">{{ authors[i].name }} {{ authors[i].surname }}</p>
                         </div>
-                         <div class="col-6">
-                            <p class="mt-2">{{dates[i]}}</p>
+                        <div class="col-6">
+                            <p class="mt-2">{{ dates[i] }}</p>
                         </div>
                     </div>
                 </div>
@@ -100,38 +103,67 @@
 
 {% block modals %}
 
-{% if session["user_id"] == user.id %}
-    <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавление новости</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="post" novalidate>
-                        {{ form.hidden_tag() }}
-                        <p>
-                            {{ form.content.label }}<br>
-                            {{ form.content(class_="form-control") }}<br>
-                            {% for error in form.content.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
-                        <p>{{ form.submit() }}</p>
-                    </form>
-                </div>
+    {% if session["user_id"] == user.id %}
+        <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Добавление новости</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" method="post" novalidate>
+                            {{ form.hidden_tag() }}
+                            <p>
+                                {{ form.content.label }}<br>
+                                {{ form.content(class_="form-control") }}<br>
+                                {% for error in form.content.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </p>
+                            <p>{{ form.submit() }}</p>
+                        </form>
+                    </div>
 
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{% endif %}
+        <div class="modal fade" id="editAbout" tabindex="-1" role="dialog" aria-labelledby="editAbout"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">О себе:</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" method="post" novalidate>
+                            {{ form_about.hidden_tag() }}
+                            <p>
+                                {{ form_about.content.label }}<br>
+                                {{ form_about.content(class_="form-control") }}<br>
+                                {% for error in form_about.content.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </p>
+                            <p>{{ form_about.submit() }}</p>
+                        </form>
+                    </div>
 
-{%endblock%}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
 
 
