@@ -121,5 +121,22 @@ function updateMessages(dialog) {
     initBaseUI();
 }
 
+function loginToGroup(element, group) {
+    var xmlhttp = getXmlHttp();
+    xmlhttp.open('POST', SITENAME + 'login_to_group', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlhttp.send("group=" + encodeURIComponent(group));
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4) {
+            if (xmlhttp.status == 200) {
+                if (xmlhttp.responseText) {
+                    window.location.reload()
+
+                }
+            }
+        }
+    };
+}
+
 
 initBaseUI();

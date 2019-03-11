@@ -12,7 +12,7 @@
                     </div>
 
                     <div class="col-12 mt-3">
-                        <button type="button" class="btn text-white bg-dryandex col-12">
+                        <button type="button" class="btn text-white bg-dryandex col-12" onclick="loginToGroup(this, {{ group.id }})">
                             {% if in_group %}
                                 Покинуть группу
                             {% else %}

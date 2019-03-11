@@ -547,9 +547,9 @@ class GroupMemberModel:
             return
         return member
 
-    def get(self, id):
+    def get(self, user, group):
         """получение участника группы по id"""
-        member = GroupMember.query.filter(GroupMember.id == id).first()
+        member = GroupMember.query.filter(GroupMember.user == user, GroupMember.group == group).first()
         if not member:
             return
         return member

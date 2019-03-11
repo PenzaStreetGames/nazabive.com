@@ -573,6 +573,18 @@ def setfriend():
     return "friendship changed"
 
 
+@app.route("/login_to_group", methods=['POST'])
+def login_to_group():
+    gr = request.form.get("group")
+    in_group = bool(GroupMemberModel().get_by(user=session["user_id"], group=gr))
+    if in_group:
+        id_row = GroupMemberModel().get(session["user_id"], gr).id
+        GroupMemberModel().delete(id_row)
+    else:
+        new = GroupMemberModel().create(session["user_id"], gr)
+    return "OK"
+
+
 @app.route("/send_message", methods=["POST"])
 def send_message():
     message_model = MessageModel()
