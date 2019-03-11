@@ -22,7 +22,7 @@ class User(db.Model):
     password = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     surname = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=False, default=2)
+    avatar = db.Column(db.Integer, nullable=False, default=1)
     time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
@@ -47,7 +47,7 @@ class Group(db.Model):
     """группы"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    avatar = db.Column(db.Integer, nullable=False, default=2)
+    avatar = db.Column(db.Integer, nullable=False, default=1)
 
 
 class Resource(db.Model):
@@ -547,9 +547,9 @@ class GroupMemberModel:
             return
         return member
 
-    def get(self, user, group):
+    def get(self, id):
         """получение участника группы по id"""
-        member = GroupMember.query.filter(GroupMember.user == user, GroupMember.group == group).first()
+        member = GroupMember.query.filter(GroupMember.id == id).first()
         if not member:
             return
         return member
@@ -682,6 +682,12 @@ class ResourceLinkModel:
         return resources
 
 
+def init_base():
+    UserModel().add("User", "123", "Паша", "Соломатин")
+    UserModel().add("Login", "123", "Захар", "Тугушев")
+
+
 if __name__ == '__main__':
 
     db.create_all()
+    init_base()

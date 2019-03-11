@@ -209,10 +209,17 @@ def profile(id):
 
 @app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
+    if request.method == "POST":
+        friend = request.form.get("friends")
+        if friend:
+            GroupMemberModel().create(user=friend, group=id)
     form = AddNewsForm()
     group = GroupModel().get(id)
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
+    friends_list = list(filter(
+        lambda friend: not bool(GroupMemberModel().get_by(friend.friend, id)),
+        friends_list))
     friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
 
     class AddUserToGroupForm(FlaskForm):
@@ -226,6 +233,7 @@ def group(id):
         PostLinkModel().create_post(place="group",
                                     place_id=id,
                                     content=content)
+        return redirect(f"/group/{id}")
     user = UserModel().get(session["user_id"])
     posts_id = PostLinkModel().get_news(place="group",
                                         place_id=group.id)
@@ -479,6 +487,9 @@ def dialog(id):
 
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
+    friends_list = list(filter(
+        lambda friend: not bool(ChatMemberModel().get(friend.friend, id)),
+        friends_list))
     friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
 
     class AddUserToDialogForm(FlaskForm):
@@ -487,6 +498,8 @@ def dialog(id):
 
     form_add_user = AddUserToDialogForm()
 
+    chat_member = ChatMemberModel().get(session["user_id"], id)
+    ChatMemberModel().update_invite(chat_member)
     messages = MessageModel().get_for(id)
     messages.sort(key=lambda message: message.time)
     authors_id = [message.sender for message in messages]
