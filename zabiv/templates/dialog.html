@@ -4,6 +4,9 @@
 {% block content %}
 
     <div class="row">
+        <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12 text-center bg-dryandex text-white-50">
+            <h3> {{dialog.name}} </h3>
+        </div>
         <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12" id="dialog-area">
             {% for i in range(message_number) %}
                 <div class="pt-3 pb-2">

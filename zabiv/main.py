@@ -253,20 +253,39 @@ def group(id):
         "name": group.name,
         "avatar_group": ava.path,
         "news": posts,
-        # "authors": authors,
         "likes": likes,
         "liked": liked,
-        # "avatars": avatars,
         "form": form,
         "form_add_user": form_add_user,
         "group": group,
         "in_group": in_group,
         "page_group": True,
+        "group_main_page": True,
         "dates": dates,
         "session": session
 
     }
     return render_template("group.html", **render_data)
+
+
+@app.route("/group_members/<int:id>", methods=["GET"])
+def group_members(id):
+    users_id = [member.user for member in
+                  GroupModel().get_of(id)]
+    group_members = [UserModel().get(member) for member in users_id]
+    avatars = [ResourceModel().get(user.avatar) for user in group_members]
+
+    render_data = {
+        "group": GroupModel().get(id),
+        "title": "Участники",
+        "members": group_members,
+        "number": len(group_members),
+        "avatars": avatars,
+        "page_group": True,
+        "group_main_page": False
+
+    }
+    return render_template("group_members.html", **render_data)
 
 
 @app.route("/groups", methods=['GET', 'POST'])
@@ -399,18 +418,23 @@ def documents():
     return render_template("documents.html", **render_data)
 
 
+def search_people(search_words):
+    searched_people = UserModel().search(name=search_words[0]) + \
+                       UserModel().search(surname=search_words[0])
+    if len(search_words) == 2:
+        searched_people += UserModel().search(
+            name=search_words[0], surname=search_words[1]) + \
+                            UserModel().search(
+                                name=search_words[1], surname=search_words[0])
+    searched_friends = list(set(searched_people))
+    return searched_people
+
+
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     if request.method == "POST":
         search_words = get_form_data("search")[0].split()[:2]
-        searched_friends = UserModel().search(name=search_words[0]) + \
-                           UserModel().search(surname=search_words[0])
-        if len(search_words) == 2:
-            searched_friends += UserModel().search(
-                name=search_words[0], surname=search_words[1]) + \
-                UserModel().search(
-                    name=search_words[1], surname=search_words[0])
-        searched_friends = list(set(searched_friends))
+        searched_friends = search_people(search_words)
         real_friends, searched_people = [], []
         for friend in searched_friends:
             if bool(FriendModel().get_relation(user_1=session["user_id"],
@@ -488,7 +512,7 @@ def dialog(id):
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
     friends_list = list(filter(
-        lambda friend: not bool(ChatMemberModel().get(friend.friend, id)),
+        lambda friend: not bool(ChatMemberModel().get(user=friend.friend, chat=id)),
         friends_list))
     friends_list = [(friend.friend, get_user_data(UserModel().get(friend.friend))) for friend in friends_list]
 
@@ -499,7 +523,7 @@ def dialog(id):
     form_add_user = AddUserToDialogForm()
 
     chat_member = ChatMemberModel().get(session["user_id"], id)
-    ChatMemberModel().update_invite(chat_member)
+    ChatMemberModel().update_invite(chat_member.id)
     messages = MessageModel().get_for(id)
     messages.sort(key=lambda message: message.time)
     authors_id = [message.sender for message in messages]
@@ -508,16 +532,38 @@ def dialog(id):
     avatars = [ResourceModel().get(avatar) for avatar in avatars_id]
     render_data = {
         "title": "Переписка",
+        "dialog": ChatModel().get(id),
         "dialog_id": id,
         "messages": messages,
         "authors": authors,
         "avatars": avatars,
         "form_add_user": form_add_user,
         "page_dialog": True,
-        "message_number": len(messages)
+        "message_number": len(messages),
+        "dialog_main_page": True
 
     }
     return render_template("dialog.html", **render_data)
+
+
+@app.route("/chat_members/<int:id>", methods=["GET"])
+def chat_members(id):
+    users_id = [member.user for member in
+                  ChatModel().get_of(id)]
+    chat_members = [UserModel().get(member) for member in users_id]
+    avatars = [ResourceModel().get(user.avatar) for user in chat_members]
+
+    render_data = {
+        "dialog": ChatModel().get(id),
+        "title": "Участники",
+        "members": chat_members,
+        "number": len(chat_members),
+        "avatars": avatars,
+        "page_dialog": True,
+        "dialog_main_page": False
+
+    }
+    return render_template("chat_members.html", **render_data)
 
 
 @app.route("/get_dialog/<int:id>", methods=["GET", "POST"])

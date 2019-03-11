@@ -310,7 +310,7 @@ class ChatMemberModel:
         member = ChatMember.query.filter(ChatMember.user == user,
                                          ChatMember.chat == chat).first()
         if not member:
-            return "Not found"
+            return
         return member
 
     def update_invite(self, id):
@@ -460,9 +460,9 @@ class PostLinkModel:
         friends = FriendModel().get_friends(user)
         for friend in friends:
             news += PostLinkModel().get_news("user", friend.friend)
-        groups = GroupModel().get_for(user)
+        groups = [member.group for member in GroupModel().get_for(user)]
         for group in groups:
-            news += [PostLinkModel().get_news("group", group)]
+            news += PostLinkModel().get_news(place="group", place_id=group)
         return news
 
 
