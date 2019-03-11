@@ -8,74 +8,93 @@ from database import *
 
 
 class AddNewsForm(FlaskForm):
+    """ Форма добавления новостей """
     content = TextAreaField('Текст новости', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class AboutUserForm(FlaskForm):
+    """ Форма добавления описания пользователя """
+
     content = TextAreaField('Описание', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
 class AuthForm(FlaskForm):
+    """ Форма авторизации """
+
     login = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
 
 
 class ImageForm(FlaskForm):
+    """ Форма добавления картинки """
+
     name = TextAreaField('Название', validators=[DataRequired()])
     img = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class VideoForm(FlaskForm):
+    """ Форма добавления видео """
+
     name = TextAreaField('Название', validators=[DataRequired()])
     video = FileField('Изображение', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class AudioForm(FlaskForm):
+    """ Форма добавления музыки """
+
     name = TextAreaField('Название', validators=[DataRequired()])
     audio = FileField('Аудиозапись', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class DocumentForm(FlaskForm):
+    """ Форма добавления документа """
+
     name = TextAreaField('Название', validators=[DataRequired()])
     document = FileField('Документ', validators=[DataRequired()])
     submit = SubmitField('Добавить')
 
 
 class SearchForm(FlaskForm):
+    """ Форма поиска """
+
     login = StringField('', validators=[DataRequired()])
     submit = SubmitField('Найти')
 
 
 class AddGroupForm(FlaskForm):
+    """ Форма добавления группы """
+
     name = StringField('Название: ', validators=[DataRequired()])
     submit = SubmitField('Создать')
 
 
 class AddDialogGroupForm(FlaskForm):
+    """ Форма добавления беседы """
+
     name = StringField('Название: ', validators=[DataRequired()])
     submit = SubmitField('Создать')
 
 
 class AvaForm(FlaskForm):
+    """ Форма добавления аватарки """
+
     document = FileField('', validators=[DataRequired()])
     submit_ava = SubmitField('Сменить аватарку')
 
 
-class Config:
-    DIR_IMG = "/static/images/"
-
-
 def get_form_data(*params):
+    """ Получение данных из POST """
     return [request.form.get(param) for param in params]
 
 
 def is_auth():
+    """ Авторизован ли пользователь """
     return "user_login" in session \
            and UserModel().exists(session["user_login"], session["user_password"]) != "Not found"
 
@@ -93,6 +112,7 @@ app.config['SECRET_KEY'] = 'dryandex_corp'
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/index", methods=['GET', 'POST'])
 def index():
+    """ Главная страница """
     if is_auth():
         return redirect("/profile")
     auth = AuthForm()
@@ -120,6 +140,7 @@ def index():
 
 @app.route("/logout")
 def logout():
+    """ Выход из панели пользователя """
     session.pop('user_login', 0)
     session.pop('user_password', 0)
     session.pop('user_name', 0)
@@ -130,6 +151,7 @@ def logout():
 
 @app.route("/reg", methods=['GET', 'POST'])
 def reg():
+    """ Регистрация """
     if is_auth():
         return redirect("/profile")
     if request.method == "POST":
@@ -157,11 +179,13 @@ def reg():
 
 @app.route("/profile", methods=['GET', 'POST'])
 def profile_me():
+    """ Редирект на профиль пользователя """
     return redirect(f"/profile/{session['user_id']}")
 
 
 @app.route("/profile/<id>", methods=['GET', 'POST'])
 def profile(id):
+    """ Профиль """
     user_model = UserModel()
     about_form = AboutUserForm()
     form = AddNewsForm()
@@ -171,7 +195,7 @@ def profile(id):
     title = f"{user.name} {user.surname}"
 
     if about_form.validate_on_submit():
-        print("!!!!!!!!!") # Обновление описания польхователя.
+        print("!!!!!!!!!")  # Обновление описания польхователя.
 
     if request.form.get("submit_ava"):
         file = request.files.get("document")
@@ -202,7 +226,7 @@ def profile(id):
         "number": len(posts),
         "name": user.name,
         "surname": user.surname,
-        "about": "", # user.about, ЗАГЛУШКА ОПИСАНИЯ ПОЛЬЗОВАТЕЛЯ***!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        "about": "",  # user.about, ЗАГЛУШКА ОПИСАНИЯ ПОЛЬЗОВАТЕЛЯ***!!!!!!!!!!!!!!!!!!!!!!!!!!!
         "avatar_profile": ava.path if ava else "static/images/no_photo.png",
         "news": posts,
         "authors": authors,
@@ -224,10 +248,11 @@ def profile(id):
 
 @app.route("/group/<int:id>", methods=['GET', 'POST'])
 def group(id):
+    """ Страница группы """
     form = AddNewsForm()
     about_form = AboutUserForm()
     if about_form.validate_on_submit():
-        print("!!!!!!!!!") # Обновление описания польхователя.
+        print("!!!!!!!!!")  # Обновление описания польхователя.
     group = GroupModel().get(id)
     get_user_data = lambda obj: f"{obj.name} {obj.surname}"
     friends_list = FriendModel().get_friends(session["user_id"])
@@ -282,6 +307,7 @@ def group(id):
 
 @app.route("/groups", methods=['GET', 'POST'])
 def groups():
+    """ Страница групп """
     form_add_group = AddGroupForm()
     if request.method == "POST":
         search_words = get_form_data("search")
@@ -331,6 +357,7 @@ def groups():
 
 @app.route("/photo", methods=['GET', 'POST'])
 def photo():
+    """  Страница фотографий """
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
@@ -351,6 +378,7 @@ def photo():
 
 @app.route("/videos", methods=['GET', 'POST'])
 def videos():
+    """  Страница видео """
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
@@ -371,6 +399,7 @@ def videos():
 
 @app.route("/audio", methods=['GET', 'POST'])
 def audio():
+    """  Страница музыки """
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
@@ -391,6 +420,7 @@ def audio():
 
 @app.route("/documents", methods=['GET', 'POST'])
 def documents():
+    """  Страница документов """
     if not is_auth():
         return redirect("/")
     if request.method == "POST":
@@ -412,6 +442,7 @@ def documents():
 
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
+    """  Страница друзей """
     if request.method == "POST":
         search_words = get_form_data("search")[0].split()[:2]
         searched_friends = UserModel().search(name=search_words[0]) + \
@@ -458,6 +489,7 @@ def friends():
 
 @app.route("/dialogs", methods=['GET', 'POST'])
 def dialogs():
+    """  Страница диалогов """
     form_add_group = AddDialogGroupForm()
     if form_add_group.validate_on_submit():
         chat_model = ChatModel()
@@ -487,6 +519,7 @@ def dialogs():
 
 @app.route("/dialog/<int:id>", methods=['GET', 'POST'])
 def dialog(id):
+    """  Страница диалога """
     if request.method == "POST":
         friend_add_id = request.form.get("friends")
         is_private = ChatModel().get(id).private
@@ -528,6 +561,7 @@ def dialog(id):
 
 @app.route("/get_dialog/<int:id>", methods=["GET", "POST"])
 def get_dialog(id):
+    """  Страница диалога """
     if request.method == "POST":
         pass
     user = UserModel().get(id)
@@ -541,6 +575,7 @@ def get_dialog(id):
 
 @app.route("/news/", methods=['GET', 'POST'])
 def news():
+    """  Страница новостей """
     if request.method == "POST":
         pass
     posts_id = PostLinkModel().get_news_tape(user=session["user_id"])
@@ -568,6 +603,7 @@ def news():
 
 @app.route("/like", methods=['POST'])
 def like():
+    """  Асинхронный запрос на лайк """
     user = session["user_id"]
     post = request.form["post_id"]
     like = LikeModel().get_by(user, post)
@@ -580,6 +616,7 @@ def like():
 
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
+    """  Асинхронный запрос на добавления в друзья """
     print("aaa")
     user = UserModel().get(session["user_id"])
     friend = UserModel().get(request.form["user"])
@@ -594,6 +631,7 @@ def setfriend():
 
 @app.route("/login_to_group", methods=['POST'])
 def login_to_group():
+    """  Асинхронный запрос на вступление в группу """
     gr = request.form.get("group")
     in_group = bool(GroupMemberModel().get_by(user=session["user_id"], group=gr))
     if in_group:
@@ -606,6 +644,7 @@ def login_to_group():
 
 @app.route("/send_message", methods=["POST"])
 def send_message():
+    """  Асинхронный запрос на отправку сообщения """
     message_model = MessageModel()
     user = session["user_id"]
     chat = request.form.get("dialog")
@@ -616,6 +655,7 @@ def send_message():
 
 @app.route("/update_messages", methods=['POST'])
 def update_messages():
+    """  Асинхронный запрос на получение списка сообщений """
     id = request.form.get("dialog")
     messages = MessageModel().get_for(id)
     messages.sort(key=lambda message: message.time)
@@ -638,6 +678,7 @@ def update_messages():
 
 @app.errorhandler(404)
 def page_not_found(e):
+    """  Страница не найдена """
     return render_template('404.html'), 404
 
 
