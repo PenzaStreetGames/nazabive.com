@@ -359,14 +359,20 @@ def group_members(id):
 
 @app.route("/groups", methods=['GET', 'POST'])
 def groups():
+    return redirect(f"/groups/{session['user_id']}")
+
+
+@app.route("/groups/<user_id>", methods=['GET', 'POST'])
+def groups_user(user_id):
     """ Страница групп """
+    user = UserModel().get(user_id)
     form_add_group = AddGroupForm()
     if request.method == "POST":
         search_words = get_form_data("search")
         searched_groups = GroupModel().search(name=search_words[0])
         user_groups, other_groups = [], []
         for group in searched_groups:
-            if GroupMemberModel().get_by(user=session["user_id"],
+            if GroupMemberModel().get_by(user=user_id,
                                          group=group.id):
                 user_groups += [group]
             else:
@@ -378,7 +384,7 @@ def groups():
         search = True
     else:
         groups_id = [member.group for member in
-                     GroupModel().get_for(session["user_id"])]
+                     GroupModel().get_for(user_id)]
         user_groups = [GroupModel().get(group) for group in groups_id]
         other_groups = []
         real_avatars = [ResourceModel().get(group.avatar)
@@ -388,7 +394,7 @@ def groups():
     if form_add_group.validate_on_submit():
         name = form_add_group.name.data
         GroupModel().create(session["user_id"], name=name)
-    groups_id = GroupModel().get_for(session["user_id"])
+    groups_id = GroupModel().get_for(user_id)
     groups_list = [GroupModel().get(group.group) for group in groups_id]
     avatars = [ResourceModel().get(group.avatar) for group in groups_list]
     render_data = {
@@ -401,7 +407,9 @@ def groups():
         "other_groups": other_groups,
         "other_avatars": other_avatars,
         "form_add_group": form_add_group,
+        "user": user,
         "page_groups": True,
+        "page_profile": True,
 
     }
     return render_template("groups.html", **render_data)
@@ -409,9 +417,15 @@ def groups():
 
 @app.route("/photo", methods=['GET', 'POST'])
 def photo():
+    return redirect(f"/photo/{session['user_id']}")
+
+
+@app.route("/photo/<user_id>", methods=['GET', 'POST'])
+def photo_user(user_id):
     """  Страница фотографий """
     if not is_auth():
         return redirect("/")
+    user = UserModel().get(user_id)
     search = False
     searched_files = []
     if request.method == "POST":
@@ -432,11 +446,13 @@ def photo():
             search = True
     render_data = {
         "title": "Фотографии",
-        "photos": ResourceModel().get_for(session["user_id"], category="image"),
+        "photos": ResourceModel().get_for(user_id, category="image"),
         "form": ImageForm(),
         "search": search,
         "searched_files": searched_files,
-        "number": len(searched_files)
+        "number": len(searched_files),
+        "user": user,
+        "page_profile": True,
 
     }
     return render_template("photo.html", **render_data)
@@ -444,9 +460,15 @@ def photo():
 
 @app.route("/videos", methods=['GET', 'POST'])
 def videos():
+    return redirect(f"/videos/{session['user_id']}")
+
+
+@app.route("/videos/<user_id>", methods=['GET', 'POST'])
+def videos_user(user_id):
     """  Страница видео """
     if not is_auth():
         return redirect("/")
+    user = UserModel().get(user_id)
     search = False
     searched_files = []
     if request.method == "POST":
@@ -468,11 +490,13 @@ def videos():
 
     render_data = {
         "title": "Видеозаписи",
-        "videos": ResourceModel().get_for(session["user_id"], category="video"),
+        "videos": ResourceModel().get_for(user_id, category="video"),
         "form": VideoForm(),
         "search": search,
         "searched_files": searched_files,
-        "number": len(searched_files)
+        "number": len(searched_files),
+        "user": user,
+        "page_profile": True,
 
     }
     return render_template("video.html", **render_data)
@@ -480,9 +504,15 @@ def videos():
 
 @app.route("/audio", methods=['GET', 'POST'])
 def audio():
+    return redirect(f"/audio/{session['user_id']}")
+
+
+@app.route("/audio/<user_id>", methods=['GET', 'POST'])
+def audio_user(user_id):
     """  Страница музыки """
     if not is_auth():
         return redirect("/")
+    user = UserModel().get(user_id)
     search = False
     searched_files = []
     if request.method == "POST":
@@ -503,11 +533,13 @@ def audio():
             search = True
     render_data = {
         "title": "Аудиозаписи",
-        "audios": ResourceModel().get_for(session["user_id"], category="music"),
+        "audios": ResourceModel().get_for(user_id, category="music"),
         "form": AudioForm(),
         "search": search,
         "searched_files": searched_files,
-        "number": len(searched_files)
+        "number": len(searched_files),
+        "user": user,
+        "page_profile": True,
 
     }
     return render_template("audio.html", **render_data)
@@ -515,9 +547,15 @@ def audio():
 
 @app.route("/documents", methods=['GET', 'POST'])
 def documents():
+    return redirect(f"/documents/{session['user_id']}")
+
+
+@app.route("/documents/<user_id>", methods=['GET', 'POST'])
+def documents_user(user_id):
     """  Страница документов """
     if not is_auth():
         return redirect("/")
+    user = UserModel().get(user_id)
     search = False
     searched_files = []
     if request.method == "POST":
@@ -539,12 +577,14 @@ def documents():
             search = True
     render_data = {
         "title": "Документы",
-        "documents": ResourceModel().get_for(session["user_id"],
+        "documents": ResourceModel().get_for(user_id,
                                              category="document"),
         "form": DocumentForm(),
         "search": search,
         "searched_files": searched_files,
-        "number": len(searched_files)
+        "number": len(searched_files),
+        "user": user,
+        "page_profile": True,
 
     }
     return render_template("documents.html", **render_data)
@@ -566,12 +606,19 @@ def search_people(search_words):
 @app.route("/friends", methods=['GET', 'POST'])
 def friends():
     """  Страница друзей """
+    return redirect(f"/friends/{session['user_id']}")
+
+
+@app.route("/friends/<user_id>", methods=['GET', 'POST'])
+def friends_user(user_id):
+    """  Страница друзей """
+    user = UserModel().get(user_id)
     if request.method == "POST":
         search_words = get_form_data("search")[0].split()[:2]
         searched_friends = search_people(search_words)
         real_friends, searched_people = [], []
         for friend in searched_friends:
-            if bool(FriendModel().get_relation(user_1=session["user_id"],
+            if bool(FriendModel().get_relation(user_1=user_id,
                                                user_2=friend.id)):
                 real_friends += [friend]
             else:
@@ -582,7 +629,7 @@ def friends():
                          for author in searched_people]
         search = True
     else:
-        friends_id = FriendModel().get_friends(session["user_id"])
+        friends_id = FriendModel().get_friends(user_id)
         real_friends = [UserModel().get(user.friend) for user in friends_id]
         searched_people = []
         real_avatars = [ResourceModel().get(author.avatar)
@@ -597,7 +644,9 @@ def friends():
         "friends_avatars": real_avatars,
         "people_number": len(searched_people),
         "people": searched_people,
-        "other_avatars": other_avatars
+        "user": user,
+        "other_avatars": other_avatars,
+        "page_profile": True
 
     }
     return render_template("friends.html", **render_data)

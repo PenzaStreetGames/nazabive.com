@@ -72,12 +72,14 @@
                         <a class="list-group-item list-group-item-action"
                            href="/videos/{{ user.id }}">Видеозаписи</a>
                         <a class="list-group-item list-group-item-action"
+                           href="/audio/{{ user.id }}">Музыка</a>
+                        <a class="list-group-item list-group-item-action"
                            href="/documents/{{ user.id }}">Документы</a>
                         <a class="list-group-item list-group-item-action"
                            href="/groups/{{ user.id }}">Группы</a>
                     </div>
                 {% endif %}
-                {% if page_groups %}
+                {% if page_groups and user.id == session["user_id"]%}
                     <div class="h4 text-dark text-center mt-3 mb-3">Группы</div>
                     <div class="list-group" id="list-tab" role="tablist">
                         <a class="list-group-item list-group-item-action"
