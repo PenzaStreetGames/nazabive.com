@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, \
-    FileField, BooleanField, SelectField
+    FileField, SelectField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from database import *
 
 
@@ -280,7 +279,7 @@ def group(id):
         res = ResourceModel().create(file.filename, file.filename,
                                      file, session["user_id"])
         link = ResourceLinkModel().create(res, "user", session["user_id"])
-        # Смена аватарки !!!!!!!
+        GroupModel().set_avatar(group=id, resource=link.id)
     if about_form.validate_on_submit():
         content = request.form.get("description")
         if content:
@@ -791,7 +790,14 @@ def news():
     posts = [PostModel().get(post) for post in posts_id]
     posts.sort(key=lambda post: post.date, reverse=True)
     dates = [str(post.date)[:19] for post in posts]
-    authors = [UserModel().get(post.author) for post in posts]
+    author_types = [post.author_type for post in posts]
+    authors = []
+    for i in range(len(posts)):
+        if author_types[i] == "user":
+            authors += [UserModel().get(posts[i].author)]
+        elif author_types[i] == "group":
+            authors += [GroupModel().get(posts[i].author)]
+    # authors = [UserModel().get(post.author) for post in posts]
     avatars = [ResourceModel().get(author.avatar) for author in authors]
     likes = [len(LikeModel().get_for(post=post.id)) for post in posts]
     liked = [bool(LikeModel().get_by(author=session["user_id"], post=post.id))
@@ -815,7 +821,7 @@ def like():
     """  Асинхронный запрос на лайк """
     user = session["user_id"]
     post = request.form["post_id"]
-    like = LikeModel().get_by(user, post)
+    like = LikeModel().get_by(author=user, post=post)
     if not like:
         LikeModel().create(author=user, post=post)
     else:
@@ -826,7 +832,6 @@ def like():
 @app.route("/setfriend", methods=['POST'])
 def setfriend():
     """  Асинхронный запрос на добавления в друзья """
-    print("aaa")
     user = UserModel().get(session["user_id"])
     friend = UserModel().get(request.form["user"])
     is_friends = FriendModel().get_relation(user_1=user.id, user_2=friend.id)

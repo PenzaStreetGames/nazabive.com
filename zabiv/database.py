@@ -1,8 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField
-from wtforms.validators import DataRequired
-from flask import Flask, redirect, request, render_template, session
+from flask import Flask
 from datetime import datetime
 from main import db
 
@@ -425,9 +422,9 @@ class MessageModel:
 
     def new_messages(self, user, chat):
         """список непрочитанных сообщений"""
-        user = UserModel().get(user)
+        member = ChatMemberModel().get(user, chat)
         messages = Message.query.filter(Message.chat == chat,
-                                        Message.time > user.time).all()
+                                        Message.time > member.invite_time).all()
         return messages
 
     def get_latest(self, chat):
@@ -617,6 +614,14 @@ class GroupModel:
         groups = Group.query.filter(Group.name.like(f"%{name}%")).all()
         return groups
 
+    def set_avatar(self, group, resource):
+        """изменение портрета пользователя"""
+        group = GroupModel().get(group)
+        resource = ResourceModel().get(resource)
+        if resource.category == "image":
+            group.avatar = resource.id
+        db.session.commit()
+
 
 class ResourceModel:
     """работа с ресурсами"""
@@ -624,7 +629,7 @@ class ResourceModel:
     def choose_category(self, resolution):
         """выбрать категорию ресурса по его разрешению"""
         categories = {"image": ["png", "jpg", "gif"],
-                      "music": ["mp3", "wav", "ogg", "oga"],
+                      "music": ["mp3", "wav", "ogg", "oga", "ogx"],
                       "video": ["mp4", "avi", "mpg"],
                       "document": ["all other resolutions"]}
         if resolution in categories["image"]:

@@ -37,10 +37,10 @@ function like(element, post_id) {
                     data = element.children[0].src;
                 if (data == SITENAME + "static/images/like.png") {
                     element.children[0].src = "/static/images/like2.png";
-                    element.children[1].innerText = "0";
+                    element.children[1].innerText = parseInt(element.children[1].innerText) - 1;
                 } else {
                     element.children[0].src = "/static/images/like.png";
-                    element.children[1].innerText = "1";
+                    element.children[1].innerText = parseInt(element.children[1].innerText) + 1;
                 }
 
             }
