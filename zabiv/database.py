@@ -624,8 +624,8 @@ class ResourceModel:
     def choose_category(self, resolution):
         """выбрать категорию ресурса по его разрешению"""
         categories = {"image": ["png", "jpg", "gif"],
-                      "music": ["mp3", "wav", "ogg"],
-                      "video": ["mp4"],
+                      "music": ["mp3", "wav", "ogg", "oga"],
+                      "video": ["mp4", "avi", "mpg"],
                       "document": ["all other resolutions"]}
         if resolution in categories["image"]:
             return "image"
