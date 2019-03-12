@@ -131,7 +131,8 @@ def index():
             login, password = get_form_data("login", "password")
             user = UserModel()
             user_object = user.exists(login, password)
-            if user_object and user_object != "Not found":
+            if user_object and user_object not in ["Not found",
+                                                   "Wrong password"]:
                 session["user_id"] = user_object.id
                 session["user_login"] = user_object.username
                 session["user_password"] = user_object.password
@@ -139,6 +140,8 @@ def index():
                 session["user_surname"] = user_object.surname
 
                 return redirect("/profile")
+            elif user_object == "Wrong_password":
+                return redirect("/index")
 
     render_data = {
         "title": "Главная",
