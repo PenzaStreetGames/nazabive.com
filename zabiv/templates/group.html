@@ -3,190 +3,203 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
-        <div class="row">
-            <div class="col-4 text-center m-4">
-                <div class="col-12">
-                    <img src="/{{ avatar_group }}" alt="asd"
-                         class="col-12 ava p-0"/>
-                </div>
-
-                <div class="col-12 mt-3">
-                    {% if in_group %}
-                    <button type="button"
-                            class="btn text-white bg-dryandex col-12 mb-1"
-                            data-toggle="modal"
-                            data-target="#editAbout">Изменить описание
-                    </button>
-                    {% endif %}
-                    <button type="button"
-                            class="btn text-white bg-dryandex col-12"
-                            onclick="loginToGroup(this, {{ group.id }})">
-                        {% if in_group %}
-                        Покинуть группу
-                        {% else %}
-                        Вступить в группу
-                        {% endif %}
-                    </button>
-                </div>
-
-            </div>
-            <div class="col-7 mt-4">
-                <h1 class="h1">{{ group.name }}</h1>
-                <p class="pb-3 small">{{ about }}</p>
-
-            </div>
-        </div>
-
-
-    </div>
-</div>
-<div class="row">
-    {% if in_group %}
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
-        <div class="pt-2 text-center">
-            <p>Есть о чем рассказать? <a href="" data-toggle="modal"
-                                         data-target="#newRow">Добавить
-                запись</a>
-            </p>
-        </div>
-    </div>
-    {% endif %}
-    {% for i in range(number) %}
-    <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <div class="row ml-0">
-                <div class="col-3">
-                    <img src="/{{ avatar_group }}" alt="1"
-                         class="avatar shadow"/>
-                </div>
-                <div class="col-9">
-                    <p class="h4 mt-2">{{ group.name }}</p>
-                </div>
-            </div>
-        </div>
-        <p class="p-3">{{ news[i].content }}</p>
-        <div class="border-top mt-2 mb-2 ml-3">
+    <div class="row">
+        <div class="shadow bg-white pl-- pr-1 mt-1 ml-1">
             <div class="row">
-                <div class="p-2 pointer" onclick="like(this)">
-                    {% if liked[i] %}
-                    <img src="/static/images/like.png" alt="like"
-                         class="sign_post mt-2 mb-2"/>
-                    {% else %}
-                    <img src="/static/images/like2.png" alt="like"
-                         class="sign_post mt-2 mb-2"/>
-                    {% endif %}
-                    <span>{{ likes[i] }}</span>
-                </div>
+                <div class="col-4 text-center m-4">
+                    <div class="col-12">
+                        <img src="/{{ avatar_group }}" alt="asd"
+                             class="col-12 ava p-0"/>
+                    </div>
 
+                    <div class="col-12 mt-3">
+                        {% if in_group %}
+                            <form action="" method="post" enctype="multipart/form-data">
+                                <p>
+                                    {{ ava.document.label }}
+                                    {{ ava.document(class_="form-control pb-5") }}
+                                    {% for error in ava.document.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </p>
+                                <p class="mb-1">{{ ava.submit_ava(class_="btn text-white bg-dryandex
+                        col-12") }}</p>
+                            </form>
+                            <button type="button"
+                                    class="btn text-white bg-dryandex col-12 mb-1"
+                                    data-toggle="modal"
+                                    data-target="#editAbout">Изменить описание
+                            </button>
+                        {% endif %}
+                        <button type="button"
+                                class="btn text-white bg-dryandex col-12"
+                                onclick="loginToGroup(this, {{ group.id }})">
+                            {% if in_group %}
+                                Покинуть группу
+                            {% else %}
+                                Вступить в группу
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </div>
+                <div class="col-7 mt-4">
+                    <h1 class="h1">{{ group.name }}</h1>
+                    <p class="pb-3 small">{{ about }}</p>
+
+                </div>
             </div>
+
 
         </div>
     </div>
-    {% endfor %}
-</div>
+    <div class="row">
+        {% if in_group %}
+            <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+                <div class="pt-2 text-center">
+                    <p>Есть о чем рассказать? <a href="" data-toggle="modal"
+                                                 data-target="#newRow">Добавить
+                        запись</a>
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+        {% for i in range(number) %}
+            <div class="shadow bg-white pl-- pr-1 mt-1 ml-1 col-12">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div class="row ml-0">
+                        <div class="col-3">
+                            <img src="/{{ avatar_group }}" alt="1"
+                                 class="avatar shadow"/>
+                        </div>
+                        <div class="col-9">
+                            <p class="h4 mt-2">{{ group.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="p-3">{{ news[i].content }}</p>
+                <div class="border-top mt-2 mb-2 ml-3">
+                    <div class="row">
+                        <div class="p-2 pointer" onclick="like(this)">
+                            {% if liked[i] %}
+                                <img src="/static/images/like.png" alt="like"
+                                     class="sign_post mt-2 mb-2"/>
+                            {% else %}
+                                <img src="/static/images/like2.png" alt="like"
+                                     class="sign_post mt-2 mb-2"/>
+                            {% endif %}
+                            <span>{{ likes[i] }}</span>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}
 
 
 {% block modals %}
-<div class="modal fade" id="addUserGroup" tabindex="-1" role="dialog"
-     aria-labelledby="addUserGroup"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Добавление
-                    участников</h5>
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="post" enctype="multipart/form-data">
-                    {{ form_add_user.hidden_tag() }}
-                    <p>
-                        {{ form_add_user.friends.label }}<br>
-                        {{ form_add_user.friends }}<br>
-                        {% for error in form_add_user.friends.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
-                    <p>{{ form_add_user.submit() }}</p>
-                </form>
-            </div>
+    <div class="modal fade" id="addUserGroup" tabindex="-1" role="dialog"
+         aria-labelledby="addUserGroup"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление
+                        участников</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {{ form_add_user.hidden_tag() }}
+                        <p>
+                            {{ form_add_user.friends.label }}<br>
+                            {{ form_add_user.friends }}<br>
+                            {% for error in form_add_user.friends.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>{{ form_add_user.submit() }}</p>
+                    </form>
+                </div>
 
+            </div>
         </div>
     </div>
-</div>
-<div class="modal fade" id="newRow" tabindex="-1" role="dialog"
-     aria-labelledby="newRow"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Добавление
-                    новости</h5>
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="post" novalidate>
-                    {{ form.hidden_tag() }}
-                    <p>
-                        {{ form.content.label }}<br>
-                        {{ form.content(class_="form-control") }}<br>
-                        {% for error in form.content.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
+    <div class="modal fade" id="newRow" tabindex="-1" role="dialog"
+         aria-labelledby="newRow"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление
+                        новости</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <p>
+                            {{ form.content.label }}<br>
+                            {{ form.content(class_="form-control") }}<br>
+                            {% for error in form.content.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
 
-                    <p>{{ form.submit() }}</p>
-                </form>
-            </div>
+                        <p>{{ form.submit() }}</p>
+                    </form>
+                </div>
 
+            </div>
         </div>
     </div>
-</div>
-<div class="modal fade" id="editAbout" tabindex="-1" role="dialog"
-     aria-labelledby="editAbout"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">О группе:</h5>
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="post" novalidate>
-                    {{ form_about.hidden_tag() }}
-                    <p>
-                        {{ form_about.description.label }}<br>
-                        {{ form_about.description(class_="form-control") }}<br>
-                        {% for error in form_about.description.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    </p>
-                    <p>{{ form_about.submit() }}</p>
-                </form>
-            </div>
+    <div class="modal fade" id="editAbout" tabindex="-1" role="dialog"
+         aria-labelledby="editAbout"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">О группе:</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" novalidate>
+                        {{ form_about.hidden_tag() }}
+                        <p>
+                            {{ form_about.description.label }}<br>
+                            {{ form_about.description(class_="form-control") }}<br>
+                            {% for error in form_about.description.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </p>
+                        <p>{{ form_about.submit() }}</p>
+                    </form>
+                </div>
 
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 

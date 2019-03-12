@@ -272,7 +272,12 @@ def group(id):
     form = AddNewsForm()
     about_form = AboutGroupForm()
     description = DescriptionModel().get_for(place="group", place_id=id)
-
+    if request.form.get("submit_ava"):
+        file = request.files.get("document")
+        res = ResourceModel().create(file.filename, file.filename,
+                                     file, session["user_id"])
+        link = ResourceLinkModel().create(res, "user", session["user_id"])
+        # Смена аватарки !!!!!!!
     if about_form.validate_on_submit():
         content = request.form.get("description")
         if content:
@@ -323,6 +328,7 @@ def group(id):
         "likes": likes,
         "liked": liked,
         "form": form,
+        "ava": AvaForm(),
         "form_add_user": form_add_user,
         "group": group,
         "in_group": in_group,
