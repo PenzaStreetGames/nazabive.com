@@ -2,93 +2,100 @@
 
 
 {% block content %}
-<form name="search" method="post">
+    <form name="search" method="post">
+        <div class="row">
+            <div class="col-10 p-0">
+                <input type="text" class="form-control col-12 p-0" id="email"
+                       placeholder="Введите имя файла"
+                       name="search">
+            </div>
+            <div class="col-2 p-0">
+                <button type="submit"
+                        class="btn text-white bg-dryandex mb-2 col-12">Поиск
+                </button>
+
+            </div>
+        </div>
+    </form>
     <div class="row">
-        <div class="col-10 p-0">
-            <input type="text" class="form-control col-12 p-0" id="email"
-                   placeholder="Введите имя файла"
-                   name="search">
-        </div>
-        <div class="col-2 p-0">
-            <button type="submit"
-                    class="btn text-white bg-dryandex mb-2 col-12">Поиск
-            </button>
+        <h3 class="offset-5">Документы</h3>
+        {% if user.id == session['user_id'] %}
 
-        </div>
-    </div>
-</form>
-<div class="row">
-    <h3>Ваши документы</h3>
-    <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12 shadow">
-        <div class="pt-2 text-center">
-            <p><a href="" data-toggle="modal" data-target="#newRow">Добавить
-                документ</a></p>
-        </div>
+            <div class="border bg-white pl-- pr-1 mt-1 ml-1 col-12 shadow">
+                <div class="pt-2 text-center">
+                    <p><a href="" data-toggle="modal" data-target="#newRow">Добавить
+                        документ</a></p>
+                </div>
 
-    </div>
-    <div class="mt-1 ml-1 col-12">
-        <div class="row">
-            {% for document in documents%}
-            <div class="mt-1 ml-1 col-12">
-                <div class="row">
-                    <div class="col-12 p-2 bg-white shadow">
+            </div>
+        {% endif %}
+
+        <div class="mt-1 ml-1 col-12">
+            <div class="row">
+                {% for document in documents %}
+                    <div class="mt-1 ml-1 col-12">
                         <div class="row">
-                            <div class="col-1">
-                                <img src="/static/images/document.png"
-                                     class="col-12 p-0 sign_post" alt="photo"/>
-                            </div>
-                            <div class="col-11"><a href="/{{document.path}}"
-                                                   download>{{document.name}}</a>
+                            <div class="col-12 p-2 bg-white shadow">
+                                <div class="row">
+                                    <div class="col-1">
+                                        <img src="/static/images/document.png"
+                                             class="col-12 p-0 sign_post" alt="photo"/>
+                                    </div>
+                                    <div class="col-11"><a href="/{{ document.path }}"
+                                                           download>{{ document.name }}</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-            {%endfor%}
         </div>
-    </div>
-    {% if search %}
+        {% if search %}
 
-    <h3>Найденые документы</h3>
-    <div class="mt-1 ml-1 col-12">
-        <div class="row">
-            {% for document in searched_files%}
+            <h3>Найденые документы</h3>
             <div class="mt-1 ml-1 col-12">
                 <div class="row">
-                    <div class="col-12 p-2 bg-white shadow">
-                        <div class="row">
-                            <div class="col-1">
-                                <img src="/static/images/document.png"
-                                     class="col-12 p-0 sign_post" alt="photo"/>
-                            </div>
-                            <div class="col-11"><a href="/{{document.path}}"
-                                                   download>{{document.name}}</a>
+                    {% for document in searched_files %}
+                        <div class="mt-1 ml-1 col-12">
+                            <div class="row">
+                                <div class="col-12 p-2 bg-white shadow">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <img src="/static/images/document.png"
+                                                 class="col-12 p-0 sign_post" alt="photo"/>
+                                        </div>
+                                        <div class="col-11"><a href="/{{ document.path }}"
+                                                               download>{{ document.name }}</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endfor %}
+
                 </div>
             </div>
-            {%endfor%}
 
-        </div>
+        {% endif %}
+
     </div>
 
-    {% endif %}
-
-</div>
-
-{%endblock%}
+{% endblock %}
 
 
 {% block modals %}
 
-    <div class="modal fade" id="newRow" tabindex="-1" role="dialog" aria-labelledby="newRow"
+    <div class="modal fade" id="newRow" tabindex="-1" role="dialog"
+         aria-labelledby="newRow"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавление документа</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление
+                        документа</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

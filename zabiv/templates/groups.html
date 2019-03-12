@@ -2,19 +2,21 @@
 
 
 {% block content %}
-    <form name="search" method="post">
-        <div class="row">
-            <div class="col-10 p-0">
-                <input type="text" class="form-control col-12 p-0" id="email"
-                       placeholder="Введите название группы"
-                       name="search">
-            </div>
-            <div class="col-2 p-0">
-                <button type="submit" class="btn text-white bg-dryandex mb-2 col-12">Поиск</button>
-
-            </div>
+<form name="search" method="post">
+    <div class="row">
+        <div class="col-10 p-0">
+            <input type="text" class="form-control col-12 p-0" id="email"
+                   placeholder="Введите название группы"
+                   name="search">
         </div>
-    </form>
+        <div class="col-2 p-0">
+            <button type="submit"
+                    class="btn text-white bg-dryandex mb-2 col-12">Поиск
+            </button>
+
+        </div>
+    </div>
+</form>
 
 {% if not search %}
 <h3>Группы</h3>
@@ -22,7 +24,8 @@
     {% for i in range(groups_number) %}
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
-            <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <img src="/{{group_avatars[i].path}}" alt="1"
+                 class="avatar_middle mt-2 mb-2 shadow"/>
             <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{groups[i].name}}</a>
         </div>
     </div>
@@ -35,7 +38,8 @@
     {% for i in range(groups_number) %}
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
-            <img src="/{{group_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <img src="/{{group_avatars[i].path}}" alt="1"
+                 class="avatar_middle mt-2 mb-2 shadow"/>
             <a href="/group/{{groups[i].id}}" class="h6 text-dark">{{groups[i].name}}</a>
         </div>
     </div>
@@ -46,7 +50,8 @@
     {% for i in range(other_number)%}
     <div class="shadow bg-white col-2 p-0 m-1 text-center">
         <div class="m-3">
-            <img src="/{{other_avatars[i].path}}" alt="1" class="avatar_middle mt-2 mb-2 shadow"/>
+            <img src="/{{other_avatars[i].path}}" alt="1"
+                 class="avatar_middle mt-2 mb-2 shadow"/>
             <a href="/group/{{other_groups[i].id}}" class="h6 text-dark">{{other_groups[i].name}}</a>
         </div>
     </div>
@@ -59,36 +64,39 @@
 
 {% block modals %}
 
-    <div class="modal fade" id="addGroup" tabindex="-1" role="dialog" aria-labelledby="newRow"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавление группы</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="post" enctype="multipart/form-data">
-                        {{ form_add_group.hidden_tag() }}
-                        <p>
-                            {{ form_add_group.name.label }}<br>
-                            {{ form_add_group.name(class_="form-control") }}<br>
-                            {% for error in form_add_group.name.errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                        </p>
-
-                        <p>{{ form_add_group.submit() }}</p>
-                    </form>
-                </div>
-
+<div class="modal fade" id="addGroup" tabindex="-1" role="dialog"
+     aria-labelledby="newRow"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление
+                    группы</h5>
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="modal-body">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {{ form_add_group.hidden_tag() }}
+                    <p>
+                        {{ form_add_group.name.label }}<br>
+                        {{ form_add_group.name(class_="form-control") }}<br>
+                        {% for error in form_add_group.name.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    </p>
+
+                    <p>{{ form_add_group.submit() }}</p>
+                </form>
+            </div>
+
         </div>
     </div>
+</div>
 {% endblock %}
 
 

@@ -8,10 +8,12 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <div class="row ml-0">
                 <div class="col-3">
-                    <img src="/{{avatars[i].path}}" alt="1" class="avatar shadow"/>
+                    <img src="/{{avatars[i].path}}" alt="1"
+                         class="avatar shadow"/>
                 </div>
                 <div class="col-9">
-                    <p class="h4 mt-2">{{authors[i].name}} {{authors[i].surname}}</p>
+                    <p class="h4 mt-2">{{authors[i].name}}
+                        {{authors[i].surname}}</p>
                 </div>
                 <div class="col-6">
                     <p class="mt-2">{{dates[i]}}</p>
@@ -21,11 +23,14 @@
         <p class="p-3">{{news[i].content}}</p>
         <div class="border-top mt-2 mb-2 ml-3">
             <div class="row">
-                <div class="p-2 pointer" onclick="like(this, {{ posts_id[i] }})">
+                <div class="p-2 pointer"
+                     onclick="like(this, {{ posts_id[i] }})">
                     {% if liked[i] %}
-                        <img src="/static/images/like.png" alt="like" class="sign_post mt-2 mb-2"/>
+                    <img src="/static/images/like.png" alt="like"
+                         class="sign_post mt-2 mb-2"/>
                     {% else %}
-                        <img src="/static/images/like2.png" alt="like" class="sign_post mt-2 mb-2"/>
+                    <img src="/static/images/like2.png" alt="like"
+                         class="sign_post mt-2 mb-2"/>
                     {% endif %}
                     <span>{{ likes[i] }}</span>
                 </div>
